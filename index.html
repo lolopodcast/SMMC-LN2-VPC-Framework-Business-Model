@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SMMC LN-2：目標、價值與績效 × 策略創新與商業模式</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'], serif: ['Merriweather','serif'] } } }
+}
+</script>
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+.animate-fade-in { animation: fadeInUp 0.5s ease-out forwards; }
+.perspective { perspective: 1000px; }
+.transform-style-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const dict = {
+zh: {
+title: "目標、價值與績效 × 策略創新",
+subtitle: "SMMC · LN-2 互動學習",
+nav_modules: "單元目錄", nav_prev: "上一單元", nav_next: "下一單元",
+key_terms: "關鍵專有名詞", flip_prompt: "點擊翻轉", audio_read: "語音導覽",
+quiz_title: "模組知識檢定（隨機 4 題）",
+submit: "提交答案", retry: "重新測驗",
+score: "得分", correct: "正確", incorrect: "錯誤", explanation: "解析",
+analytics_title: "學習歷程分析",
+analytics_desc: "追蹤您的學習進度、互動頻率與測驗表現",
+analytics_form_title: "填寫學習者資訊",
+analytics_group: "組別", analytics_dept: "系級",
+analytics_dept_ph: "例：IBS3",
+analytics_id: "學號", analytics_id_ph: "例：112212099",
+analytics_name: "姓名", analytics_name_ph: "例：Jimmy Lo",
+analytics_export_csv: "匯出 CSV 歷程記錄",
+analytics_fill_required: "請填寫完整資訊以解鎖匯出",
+group_options: ["G1","G2","G3","G4","G5","Others"],
+analytics_total_time: "總學習時間", analytics_total_clicks: "總互動點擊",
+analytics_overall_acc: "總體測驗答對率",
+analytics_module: "模組", analytics_time: "停留時間",
+analytics_clicks: "點擊次數", analytics_acc: "答對率",
+analytics_correct_ans_total: "答對 / 已填答 / 總題數",
+analytics_no_data: "尚未測驗", analytics_sec: "秒", analytics_times: "次",
+
+m0_nav: "0. 課程總覽",
+m0_title: "目標、價值與績效 × 策略創新與商業模式",
+m0_intro: "本單元整合 Grant 教科書第二章與 Lo 教授 LN-2 講義，從「策略即追求價值」出發，系統化探討企業如何創造、衡量、分配與永續維持價值。涵蓋 V-P-C 架構、財務績效分析、企業價值估算、平衡計分卡、商業模式畫布，以及企業社會責任與共享價值等核心議題。",
+m0_why: "為什麼這些主題重要？",
+m0_why_desc: "在競爭日益激烈的全球環境中，理解價值創造的完整鏈條——從消費者的最大支付意願到企業的經濟利潤——是策略管理者的核心能力。無論是新創企業設計商業模式，還是跨國企業進行績效診斷，本單元的分析工具都是不可或缺的。",
+m0_stats: [
+  { val: "5", label: "學習模組" },
+  { val: "40", label: "測驗題目" },
+  { val: "15", label: "翻轉術語卡" },
+  { val: "5", label: "微型個案" }
+],
+m0_modules: [
+  { num: "01", title: "價值創造的本質：V-P-C 架構", desc: "從消費者支付意願到經濟價值創造，理解策略的核心命題" },
+  { num: "02", title: "利潤衡量與績效診斷", desc: "會計利潤 vs. 經濟利潤、DuPont 拆解、UPS vs. FedEx 案例" },
+  { num: "03", title: "企業價值與實質選擇權", desc: "DCF 估值、WACC、帳面 vs. 市場價值、Real Options 思維" },
+  { num: "04", title: "績效目標與平衡計分卡", desc: "財務目標拆解、BSC 四構面、Boeing 的教訓" },
+  { num: "05", title: "商業模式與策略創新", desc: "Business Model Canvas、策略創新、CSR 與共享價值" }
+],
+m0_start: "開始學習 →",
+
+m1_nav: "1. V-P-C 架構",
+m1_title: "價值創造的本質：V-P-C 架構與策略核心命題",
+m1_p1: "策略的本質是追求價值（Value）。每間企業都有其獨特使命——Henry Ford 要為大眾打造汽車、Steve Jobs 要將個人電腦的力量帶給每個人、IKEA 要為多數人創造更美好的日常生活。然而，在這些多元的組織目的之下，存在一個共同分母：創造價值的渴望與必要性。",
+m1_p2: "「價值可以透過兩種方式創造：生產（將較低價值的投入轉化為較高價值的產出）與商業（透過時間與空間的套利重新配置產品）。」——Robert M. Grant",
+m1_p3: "V-P-C 架構（Value-Price-Cost）是分析價值創造與分配的核心工具。消費者的最大支付意願（WTP, V）減去企業成本（C）即為經濟價值創造（V-C）。價格（P）則決定了這份價值如何在消費者剩餘（V-P）與企業利潤（P-C）之間分配。企業追求卓越獲利的途徑有二：「做得更好」（效率導向，降低成本）或「做得不同」（效能導向，提升價值）。",
+m1_cards: [
+  { title: "生產創造價值", desc: "將消費者較不重視的產品實體轉化為更受重視的產出——例如將咖啡豆與牛奶變成一杯卡布奇諾。" },
+  { title: "商業創造價值", desc: "透過空間與時間的套利重新配置產品——貿易將產品從價值較低處移至較高處；投機則跨越時間創造價值。" }
+],
+m1_case_title: "微型個案：台灣早餐店的 V-P-C",
+m1_case_desc: "一家台中的傳統早餐店，一份蛋餅成本約 12 元（食材、瓦斯、包材），售價 30 元，而消費者在趕上班時的支付意願可達 50 元。經濟價值創造 = 50 - 12 = 38 元，消費者剩餘 = 50 - 30 = 20 元，企業利潤 = 30 - 12 = 18 元。若早餐店推出「起司蛋餅」提升感知價值至 65 元，即便成本增至 16 元、售價提高至 40 元，消費者剩餘與企業利潤同步擴大。這正是「價值提升」（Value Up）策略的體現。",
+m1_terms: [
+  { front: "V-P-C 架構", back: "Value-Price-Cost Framework：以消費者支付意願（V）、價格（P）、成本（C）三要素分析經濟價值如何被創造與分配的分析框架。" },
+  { front: "消費者剩餘 Consumer Surplus", back: "消費者的最大支付意願（V）減去實際支付價格（P）的差額，代表消費者從交易中獲得的淨利益。" },
+  { front: "經濟價值創造 Economic Value Created", back: "消費者支付意願（V）減去企業成本（C）的總額（V-C），代表一筆交易中被創造出的全部價值。" }
+],
+m1_q: [
+  { q: "V-P-C 架構中，經濟價值創造（Economic Value Created）的計算方式為何？", opts: ["P - C","V - P","V - C","V - P - C"], ans: 2, exp: "經濟價值創造 = V（消費者支付意願）- C（企業成本），代表整筆交易中被創造的全部價值。" },
+  { q: "在 V-P-C 架構中，消費者剩餘是指？", opts: ["V - C","P - C","V - P","V + P"], ans: 2, exp: "消費者剩餘 = V - P，即消費者最大支付意願減去實際支付價格。" },
+  { q: "價值可以透過哪兩種方式創造？", opts: ["生產與消費","生產與商業","定價與促銷","研發與行銷"], ans: 1, exp: "Grant 指出價值透過「生產」（實體轉化）與「商業」（時空套利）兩種方式創造。" },
+  { q: "「做得更好 vs. 做得不同」對應的策略方向分別是？", opts: ["效率 vs. 效能","成本 vs. 品質","短期 vs. 長期","內部 vs. 外部"], ans: 0, exp: "「做得更好」追求效率（降低成本），「做得不同」追求效能（提升價值），是兩條不同的獲利路徑。" },
+  { q: "企業利潤在 V-P-C 架構中的計算方式為？", opts: ["V - C","V - P","P - C","P + C"], ans: 2, exp: "企業利潤 = P（價格）- C（成本），是企業從價值創造中所獲取的份額。" },
+  { q: "商業（Commerce）創造價值的方式是？", opts: ["實體轉化產品","透過時間與空間的套利","降低生產成本","提高生產效率"], ans: 1, exp: "商業不改變產品的物理形態，而是透過空間（貿易）與時間（投機）的轉移來創造價值。" },
+  { q: "若 V = 100, P = 70, C = 40，則經濟價值創造為多少？", opts: ["30","60","70","100"], ans: 1, exp: "經濟價值創造 = V - C = 100 - 40 = 60。這 60 元分為消費者剩餘（30）與企業利潤（30）。" },
+  { q: "IKEA 的使命宣言體現了哪種價值創造邏輯？", opts: ["純粹追求股東價值最大化","透過低價為多數人創造日常生活價值","專注奢侈品市場的高價策略","將CSR作為主要目標"], ans: 1, exp: "IKEA 致力於以低廉價格提供設計良好的家居產品，體現了為消費者創造可負擔價值的策略。" }
+],
+
+m2_nav: "2. 績效診斷",
+m2_title: "利潤的衡量與績效診斷：從會計利潤到經濟利潤",
+m2_p1: "利潤是企業營收扣除成本後可分配給所有者的剩餘。但利潤最大化作為目標充滿模糊性：是要追求利潤總額還是利潤率？在什麼時間維度下？用什麼衡量標準？會計利潤混合了兩類報酬——資本的正常報酬（補償投資者使用資本的成本）與經濟利潤（所有投入要素被支付後的真正剩餘）。",
+m2_p2: "「經濟附加價值（EVA）= 稅後淨營業利潤（NOPAT）- 資本成本（Capital Employed × WACC）。經濟利潤的核心價值在於：它對管理者設立了更嚴格的績效紀律。」",
+m2_p3: "DuPont 恆等式將資本報酬率拆解為銷售利潤率與資本週轉率，進而可細分至各項成本與資產效率指標。以 UPS 與 FedEx 為例：2010-2014 年間 UPS 的 ROCE 為 33.3%，遠高於 FedEx 的 15.3%。拆解後發現，UPS 的優勢來自更高的營業利潤率（10.1% vs. 6.5%）和更高的資本週轉率（3.28 vs. 2.34）。深入分析顯示 UPS 雖然勞動成本佔比較高（54.8% vs. 37.0%），但在燃料、維修、折舊和其他成本上均顯著低於 FedEx。",
+m2_cards: [
+  { title: "會計利潤的侷限", desc: "會計利潤未扣除資本成本，可能讓資本密集型企業看似獲利豐厚，實際上卻未能為股東創造價值。" },
+  { title: "EVA 的策略價值", desc: "Diageo 運用 EVA 後發現：需長期陳放的高端威士忌，考量資本佔用成本後獲利遠不如伏特加。結果促使 Diageo 重新配置廣告資源，並最終出售了旗下食品事業。" }
+],
+m2_case_title: "微型個案：Diageo 的 EVA 革命",
+m2_case_desc: "Diageo（帝亞吉歐）是全球最大的烈酒集團，旗下擁有 Johnnie Walker、Smirnoff、Guinness 等品牌。在導入 EVA 之前，管理層以傳統利潤率衡量各產品線，高端陳年威士忌（如 Talisker、Lagavulin）與頂級干邑（如 Hennessy）以其高毛利率被視為明星產品。然而，EVA 分析揭示了一個被忽略的事實：這些陳年酒品需要數年甚至數十年的窖藏，佔用了大量資本。一旦計入資本成本，其經濟利潤遠低於 Smirnoff 伏特加等可在數週內生產銷售的產品。這項發現促使 Diageo 做出三項關鍵決策：（1）將廣告預算重新配置至快速週轉的品牌；（2）對食品事業 Pillsbury 的每項產品和每個主要客戶進行 EVA 分析，淘汰低效產品；（3）最終將 Pillsbury 出售給 General Foods，並將 Burger King 售予德太投資集團。EVA 也被納入 1,400 名管理者的薪酬激勵制度中。此案例完美詮釋了「經濟利潤思維」如何從根本上改變企業的資源配置邏輯。",
+m2_terms: [
+  { front: "經濟附加價值 EVA", back: "Economic Value Added：稅後淨營業利潤減去資本成本（Capital × WACC），由 Stern Stewart 公司提出，衡量企業是否真正為股東創造超額價值。" },
+  { front: "DuPont 恆等式", back: "將 ROE 拆解為 ROS × 資產週轉率 ×（1 + 負債/權益），用以診斷獲利來源，判斷績效問題根因。" },
+  { front: "ROCE 資本報酬率", back: "Return on Capital Employed：營業利潤除以（股東權益 + 長期負債），衡量企業運用所有投入資本創造利潤的效率。" }
+],
+m2_q: [
+  { q: "EVA 的計算公式為何？", opts: ["營收 - 成本","NOPAT - 資本成本","淨利 - 稅金","EBITDA - 折舊"], ans: 1, exp: "EVA = NOPAT - (Capital Employed × WACC)，衡量扣除全部資本機會成本後的真正經濟利潤。" },
+  { q: "DuPont 恆等式將 ROE 拆解為哪些組成部分？", opts: ["營收成長率 × 利潤率","ROS × 資產週轉率 × 權益乘數","ROCE × WACC","毛利率 × 淨利率"], ans: 1, exp: "ROE = ROS（銷售利潤率）× S/A（資產週轉率）×（1 + D/E）（財務槓桿），是績效診斷的基礎工具。" },
+  { q: "Diageo 導入 EVA 後的主要發現是？", opts: ["高端威士忌是最賺錢的產品","伏特加的經濟利潤高於陳年威士忌","所有產品線獲利相當","食品事業是最具價值的部門"], ans: 1, exp: "陳年酒品佔用大量資本，計入資本成本後經濟利潤遠低於快速週轉的伏特加。" },
+  { q: "UPS 的 ROCE 高於 FedEx 的主要原因是？", opts: ["UPS 規模較小效率較高","UPS 擁有更高的營業利潤率和資本週轉率","FedEx 的營收較低","UPS 的勞動成本較低"], ans: 1, exp: "UPS 的營業利潤率（10.1% vs. 6.5%）和資本週轉率（3.28 vs. 2.34%）均優於 FedEx。" },
+  { q: "會計利潤與經濟利潤的關鍵差異在於？", opts: ["計算期間不同","是否扣除資本的機會成本","是否包含營收","計算幣別不同"], ans: 1, exp: "經濟利潤額外扣除了全部資本（包括權益資本）的機會成本，是更嚴格的績效衡量標準。" },
+  { q: "在 UPS vs. FedEx 的分析中，FedEx 哪項成本比率顯著較高？", opts: ["勞動成本/銷售額","燃料成本/銷售額","行政費用/銷售額","研發費用/銷售額"], ans: 1, exp: "FedEx 的燃料成本（10.7% vs. 7.5%）、維修成本（4.3% vs. 2.3%）、折舊（5.3% vs. 3.4%）均高於 UPS。" },
+  { q: "績效診斷的起點應該是什麼？", opts: ["直接設定新目標","先評估當前績效狀態，再找出問題根源","立刻進行組織重整","參考競爭對手做法"], ans: 1, exp: "如同醫療實踐：先評估患者健康狀態（績效評估），再判定病因（績效診斷），最後開處方（策略制定）。" },
+  { q: "EVA 作為績效指標的兩個主要優勢是？", opts: ["計算簡單且容易理解","設立更嚴格的績效紀律，並改善資本配置","僅適用於大型企業","取代所有其他財務指標"], ans: 1, exp: "EVA 使管理者面對更嚴格的績效標準，並透過反映真實資本成本來優化不同事業之間的資源分配。" }
+],
+
+m3_nav: "3. 企業價值",
+m3_title: "企業價值與實質選擇權：DCF、WACC 與前瞻思維",
+m3_p1: "企業價值等於其未來自由現金流的淨現值（NPV），以加權平均資本成本（WACC）折現。McKinsey 指出企業價值取決於三大驅動因素：資本報酬率（ROCE）、資本成本（WACC）和營業利潤成長率。然而，NPV 並非企業價值的唯一來源——實質選擇權（Real Options）也構成了重要的價值組成部分。",
+m3_p2: "「在不確定的世界中，投資一旦做出便不可逆轉，彈性就具有價值。與其一次投入整個專案，不如將專案分為多個階段，在每個關卡依據當時的環境與學習成果決定是否繼續。」",
+m3_p3: "實質選擇權將金融選擇權的定價原理延伸至實體投資與策略分析。Shell 在氫能源技術上的小額聯合研發投資，短期內報酬率可能不及核心油氣業務，但它創造了一個「選擇權」：若燃料電池技術成熟，Shell 可以行使該選擇權進行大規模商業化投資。不確定性越高、選擇權存續期越長，其價值越大。成長選擇權的形式包括平台投資（如 3M 的奈米技術、Google 的搜尋引擎平台）、策略聯盟（如 Virgin 集團的合資事業）以及組織能力（如 Apple 整合硬體、軟體與設計的核心能力）。",
+m3_cards: [
+  { title: "帳面價值 vs. 市場價值", desc: "S&P 500 企業中，帳面價值佔總市值的比例從 1980 年的 80% 下降至 2010 年的 30%。70% 的市場價值來自無形資產——專利、品牌、人才、流程等難以複製的能力。" },
+  { title: "實質選擇權的六大決定因素", desc: "（1）專案 NPV 越高→選擇權價值越高；（2）投資成本越高→價值越低；（3）不確定性越大→價值越高；（4）存續期越長→價值越高；（5）等待期間價值流失→價值降低；（6）利率越高→延遲投資的價值越高。" }
+],
+m3_case_title: "微型個案：Shell 的氫能源選擇權",
+m3_case_desc: "Royal Dutch Shell 在 2000 年代投資了一系列氫能源聯合研發計畫。從傳統 NPV 分析看，這些投資的預期報酬率遠低於核心油氣業務，似乎不符合股東利益最大化的原則。但 Shell 的高層以「實質選擇權」的視角重新審視這些投資：Shell 並非在建造大規模氫能生產工廠，而是在累積技術知識與智慧財產——這相當於購入一張「看漲選擇權」。若未來經濟、環境或政策因素限制了碳氫化合物的使用，且燃料電池技術達到商業可行性，Shell 就可以「行使」這個選擇權，將小額研發投資轉化為大規模商業化部署。這種「階段式投資 + 關卡決策」的思維，正是實質選擇權理論在策略管理中的經典應用。類似邏輯也出現在創投對 Kik（一個擁有 2 億用戶但幾乎無營收的即時通訊應用）的 3,830 萬美元融資中——投資者購買的不是當前獲利，而是未來平台化與廣告變現的成長選擇權。",
+m3_terms: [
+  { front: "淨現值 NPV", back: "Net Present Value：未來現金流以適當折現率折算至今日的價值總和。企業價值 = Σ[FCF_t / (1+WACC)^t]。" },
+  { front: "實質選擇權 Real Options", back: "將金融選擇權概念應用於實體投資決策，賦予企業「可以但不必須」執行某項投資的權利，在不確定環境中創造彈性價值。" },
+  { front: "WACC 加權平均資本成本", back: "Weighted Average Cost of Capital：企業所有資本來源（權益與負債）的加權平均成本，用於折現未來現金流以計算企業價值。" }
+],
+m3_q: [
+  { q: "企業價值的 DCF 計算方式為？", opts: ["營收 × 利潤率","未來自由現金流以 WACC 折現的淨現值","總資產 - 總負債","股價 × 流通股數"], ans: 1, exp: "V = Σ[FCF_t / (1+WACC)^t]，企業價值等於未來各期自由現金流以加權平均資本成本折現後的總和。" },
+  { q: "McKinsey 認為企業價值的三大驅動因素是？", opts: ["營收、成本、利潤","ROCE、WACC、利潤成長率","市佔率、品牌價值、技術","人才、流程、組織"], ans: 1, exp: "創造企業價值需要提高 ROCE、降低 WACC、以及增加營業利潤的成長率。" },
+  { q: "實質選擇權的核心概念是？", opts: ["企業必須立刻投資所有專案","在不確定環境中，保有彈性（選擇是否執行）本身具有價值","只有大型企業才適用","與金融市場無關的投資概念"], ans: 1, exp: "實質選擇權的核心是「可以但不必須」的彈性——在不確定環境中，將專案分階段執行，每階段保有繼續、修改或放棄的選擇。" },
+  { q: "S&P 500 中帳面價值佔市值比例從 1980 到 2010 年如何變化？", opts: ["從 30% 上升至 80%","維持在 50% 左右","從 80% 下降至 30%","從 100% 下降至 50%"], ans: 2, exp: "帳面價值佔比從 80% 降至 30%，反映無形資產（品牌、專利、能力）在企業價值中的比重大幅上升。" },
+  { q: "Shell 氫能源投資的策略邏輯是？", opts: ["追求短期高報酬","透過小額投資累積技術，創造未來大規模商業化的成長選擇權","因為氫能源已經商業可行","為了提升短期股價"], ans: 1, exp: "Shell 購買的是一個「選擇權」：若未來條件成熟，可將小額研發投資轉化為大規模部署。" },
+  { q: "不確定性對實質選擇權價值的影響是？", opts: ["不確定性越大，選擇權價值越低","不確定性越大，選擇權價值越高","不確定性與選擇權價值無關","只有低不確定性才有選擇權價值"], ans: 1, exp: "與直覺相反，不確定性越大，保有彈性（等待更多資訊再決策）的價值越高。" },
+  { q: "創投對 Kik 的投資體現了什麼概念？", opts: ["追求短期獲利","對確定營收模式的投資","購買未來平台化的成長選擇權","避險策略"], ans: 2, exp: "Kik 有 2 億用戶但幾乎無營收，投資者看中的是其平台化與廣告變現的成長選擇權價值。" },
+  { q: "以下何者不是成長選擇權的形式？", opts: ["平台投資","策略聯盟","組織能力","一次性大規模不可逆投資"], ans: 3, exp: "成長選擇權強調彈性與階段性，一次性不可逆的大規模投資恰好是選擇權思維要避免的做法。" }
+],
+
+m4_nav: "4. 平衡計分卡",
+m4_title: "績效目標設定與平衡計分卡：從策略到執行",
+m4_p1: "設定績效目標是策略規劃的核心任務之一。目標必須與長期策略一致、與策略連結、且對組織成員而言是可行動的。然而，績效目標存在兩大根本困境：第一，直接以目標本身為標的可能適得其反（如許多最致力於股東價值最大化的企業反而表現最差）；第二，將目標拆解為具體量化指標時，達成指標的手段可能與原始目標相矛盾。",
+m4_p2: "「在蘇聯鞋廠中，月產量指標的結果是大量生產單一尺碼的低品質鞋子。在英國國民健康服務中，八分鐘救護車反應時間指標的達成方式是以汽車代替救護車、以半受訓志工取代正規救護人員。」",
+m4_p3: "Kaplan 與 Norton 提出的平衡計分卡（BSC）嘗試解決這些困境。BSC 整合四個構面的績效指標：財務構面（如何看待股東）、客戶構面（客戶如何看待我們）、內部流程構面（我們必須在哪些方面卓越）、學習與成長構面（我們能否持續改進與創造價值）。透過平衡策略目標與財務目標，BSC 將業務策略與股東價值創造連結起來，同時提供一套可衡量的目標體系來引導這個過程。",
+m4_cards: [
+  { title: "Boeing 的教訓：追求股東價值的陷阱", desc: "1960-1990 年代的 Boeing 專注於打造偉大飛機，財務表現卻十分出色。1990 年代中期併購 McDonnell Douglas 後，新管理層大力推動股東價值最大化，結果卻是：缺乏重大新民航專案投資、市場領導地位拱手讓給 Airbus，CEO 辭職時股價較其上任時下跌 20%。這延伸至 2018-2019 年 737 MAX 危機：過度追求成本削減與財務績效，導致安全文化崩壞，造成 346 人罹難。" },
+  { title: "區域航空公司的 BSC 策略地圖", desc: "財務：提高獲利→降低成本 + 增加營收。客戶：準時航班→更多旅客→低票價。內部：縮短地面週轉時間。學習：培訓地勤人員、員工持股計畫。每個構面的指標環環相扣，形成因果鏈。" }
+],
+m4_case_title: "微型個案：Boeing 從工程卓越到財務導向的崩壞",
+m4_case_desc: "Boeing 的故事是管理史上最引人深思的案例之一。在 CEO Bill Allen 領導下（1945-1968），Boeing 是一家以工程師文化為核心的企業。Allen 的理念是打造世界上最出色的飛機。在董事會審議公司史上最大投資——波音 747——時，非執行董事 Crawford Greenwalt 詢問財務預測，Allen 的回答含糊不清。Greenwalt 雙手抱頭低聲說道：「天哪，這些人根本不知道這筆投資的報酬率會是多少。」但 747 最終成為航空史上最成功的飛機之一。轉折點發生在 1997 年與 McDonnell Douglas 的合併。新任管理層 Phil Condit 與 Harry Stonecipher 宣布將 Boeing 帶入「以價值為基礎的環境，以單位成本、投資報酬率和股東回報作為衡量標準」。結果是大幅削減研發投入、放棄民航市場領導地位、轉向國防與衛星的多角化。當 Condit 於 2003 年辭職時，股價已較其上任時下跌 20%。這一文化轉向的後果在 2018-2019 年的 737 MAX 危機中達到最慘烈的頂點：過度的成本壓縮和績效追求侵蝕了安全文化，造成兩架飛機墜毀、346 人喪生、全球停飛，以及超過 200 億美元的直接損失。Boeing 的教訓完美印證了 John Kay 的「間接性」（Obliquity）原則：有時候，間接追求目標反而比直接追求更有效。",
+m4_terms: [
+  { front: "平衡計分卡 BSC", back: "Balanced Scorecard：由 Kaplan & Norton 提出，整合財務、客戶、內部流程、學習成長四構面的策略執行與績效管理工具。" },
+  { front: "間接性原則 Obliquity", back: "John Kay 提出：追求目標時，間接途徑往往比直接途徑更有效。例如，專注於卓越產品的企業往往比直接追求利潤的企業更賺錢。" },
+  { front: "策略地圖 Strategy Map", back: "將平衡計分卡的四個構面以因果關係串聯的視覺化工具，展示學習與成長如何驅動內部流程、進而影響客戶與財務成果。" }
+],
+m4_q: [
+  { q: "平衡計分卡包含哪四個構面？", opts: ["生產、行銷、財務、人資","財務、客戶、內部流程、學習與成長","成本、營收、利潤、市佔率","短期、中期、長期、永續"], ans: 1, exp: "BSC 的四構面是：財務（股東觀點）、客戶、內部業務流程、創新與學習。" },
+  { q: "Boeing 案例最核心的策略教訓是？", opts: ["財務目標應該是唯一的策略焦點","直接追求股東價值最大化可能適得其反","工程品質不重要","併購永遠是錯誤的"], ans: 1, exp: "Boeing 從專注工程卓越轉向追求股東價值後，反而失去市場領導地位，最終釀成安全危機。" },
+  { q: "績效目標設定的第二類問題是？", opts: ["目標太少無法衡量","達成量化指標的手段可能違背原始目標","目標太容易達成","財務指標過於複雜"], ans: 1, exp: "蘇聯鞋廠和英國 NHS 的例子說明：當具體量化指標成為標的，人們會以扭曲的方式達成指標而偏離原始目的。" },
+  { q: "BSC 如何解決短期財務目標與長期策略之間的矛盾？", opts: ["完全放棄財務指標","將財務目標與策略、營運目標平衡整合","只關注短期指標","將所有目標轉化為財務數字"], ans: 1, exp: "BSC 將財務目標與客戶、流程、學習等策略目標整合，避免短期財務追求損害長期價值創造。" },
+  { q: "Bill Allen 時期的 Boeing 為何財務表現出色？", opts: ["因為直接追求財務報酬","因為專注於打造最出色的飛機，財務成果是副產品","因為大量併購","因為削減研發支出"], ans: 1, exp: "Allen 時期 Boeing 以工程卓越為核心，這種「間接追求利潤」的方式反而帶來卓越的財務成果。" },
+  { q: "策略地圖中，各構面之間的關係是？", opts: ["各自獨立無關","由下而上的因果鏈（學習→流程→客戶→財務）","由上而下的命令鏈","只有財務構面有因果關係"], ans: 1, exp: "策略地圖展示：學習與成長驅動內部流程改善，進而提升客戶滿意度，最終實現財務目標。" },
+  { q: "下列何者最能描述「間接性原則」？", opts: ["目標越明確越好","直接追求目標是最有效的方式","間接追求目標有時比直接追求更有效","所有目標都應該量化"], ans: 2, exp: "John Kay 的間接性原則指出：像 Boeing（Allen 時期）專注於卓越產品而非利潤，反而獲得更好的財務成果。" },
+  { q: "區域航空公司 BSC 中，「縮短地面週轉時間」屬於哪個構面？", opts: ["財務","客戶","內部流程","學習與成長"], ans: 2, exp: "地面週轉時間是內部營運流程的指標，它驅動「準時航班」（客戶構面）和「降低成本」（財務構面）。" }
+],
+
+m5_nav: "5. 商業模式創新",
+m5_title: "商業模式與策略創新：價值主張、獲取與永續",
+m5_p1: "商業模式是關於「如何經營一門生意」的完整藍圖。它包含四大要素：（1）價值主張——我們為哪些客戶解決什麼問題？（2）價值創造與傳遞——透過內部活動系統與外部價值網絡如何實現？（3）價值獲取與分配——營收模式與利潤流如何設計？（4）價值永續——如何使模式難以被模仿或替代？策略創新超越了單純的產品或流程創新，它關乎建立全新的競爭規則與商業模式。",
+m5_p2: "「創新是一種改變與差異的製造過程、一種非均衡現象、一種重組而非發現、一種程度之分而非全有或全無。策略創新關乎啟動新的商業模式並引入新的競爭規則。」——Shihmin Lo",
+m5_p3: "Business Model Canvas（BMC）將商業模式視覺化為九個構件：價值主張、客戶區隔、通路、客戶關係、關鍵活動、關鍵資源、關鍵夥伴、成本結構、營收來源。市場結構也深刻影響價值獲取能力：從完全競爭（碎片化、低獲利）到壟斷（集中化、高獲利），企業的定價能力與進入障礙決定了其能保留多少經濟價值。此外，Porter 與 Kramer 的「共享價值」（Shared Value）概念指出：企業可以在追求競爭優勢的同時創造正面社會成果，如 Unilever 的永續生活計畫所展示的。",
+m5_cards: [
+  { title: "BMC 九大構件與 V-P-C 的對應", desc: "BMC 左半部（關鍵夥伴、活動、資源）對應「價值創造」與成本面；中間（價值主張）對應「價值」；右半部（客戶區隔、關係、通路）對應「價值傳遞」；底部（成本結構、營收來源）對應「價值獲取」。" },
+  { title: "市場結構與價值獲取", desc: "完全競爭→企業為價格接受者、低進入障礙、商品化產品。壟斷性競爭→有限定價權、差異化產品。寡占→少數大型企業、高進入障礙。壟斷→獨占定價權、獨特產品、極高進入障礙。" }
+],
+m5_case_title: "微型個案：Unilever 永續生活計畫——共享價值的實踐",
+m5_case_desc: "2010 年 11 月，Unilever 在 CEO Paul Polman 的領導下推出了「永續生活計畫」（Sustainable Living Plan），設定三大目標：到 2020 年幫助超過 10 億人改善健康；到 2030 年將環境足跡減半；提升價值鏈中數百萬人的生計。Polman 的策略核心理念是：永續與成長並非對立，而是相互強化的。這與 Porter 和 Kramer 的「共享價值」概念完全吻合——在企業利益與社會利益的交集處尋找機會，擴大經濟與社會價值的總量。成果顯著：到 2020 年，Unilever 的永續品牌（如 Dove、Lipton、Ben & Jerry's）成長速度比其他品牌快 69%，貢獻了公司 75% 的成長。製造業碳排放較 2008 年減少 65%。全球工廠在 2014 年就實現了零廢棄物掩埋。Lifebuoy 品牌的洗手計畫觸及超過 10 億人。從 2010 到 2020 年，Unilever 股價的年化報酬率達到 10%，超越主要競爭對手 P&G 與 Nestlé。然而也有批評聲音：當 Polman 在 2015 年前往達沃斯途中宣布計劃利用 Unilever 的規模遊說全球領袖達成氣候協議時，部分人質疑他是否將全球利益置於公司利益之上。這凸顯了「策略性 CSR」與「超越策略的社會倡議」之間的張力。但整體而言，Unilever 案例有力地證明了：將永續發展嵌入核心商業策略（而非作為邊陲的 CSR 計畫），可以同時為股東和社會創造價值。",
+m5_terms: [
+  { front: "商業模式畫布 BMC", back: "Business Model Canvas：由 Osterwalder 提出的九構件視覺化工具，系統化描述企業如何創造、傳遞與獲取價值。" },
+  { front: "共享價值 Shared Value", back: "Porter & Kramer 提出：在提升企業競爭力的同時改善社會條件的策略。不是重新分配既有價值，而是擴大經濟與社會價值的總量。" },
+  { front: "策略創新 Strategic Innovation", back: "超越產品或流程創新，關乎啟動全新的商業模式並引入新的競爭規則，創造非均衡的市場態勢。" }
+],
+m5_q: [
+  { q: "商業模式的四大要素不包含下列何者？", opts: ["價值主張","價值創造與傳遞","價值獲取與分配","價值定價策略"], ans: 3, exp: "四大要素是：價值主張、價值創造與傳遞、價值獲取與分配、價值永續。定價是獲取的一部分，非獨立要素。" },
+  { q: "策略創新與產品/流程創新的關鍵差異是？", opts: ["策略創新只關注技術","策略創新關乎建立新的商業模式與競爭規則","策略創新不需要創新","策略創新僅適用於新創企業"], ans: 1, exp: "策略創新超越單純的產品或流程改進，涉及建立全新的商業模式與改變競爭規則。" },
+  { q: "在 BMC 中，「關鍵夥伴」屬於哪個價值面向？", opts: ["價值主張","價值創造","價值獲取","價值傳遞"], ans: 1, exp: "關鍵夥伴、關鍵活動、關鍵資源共同構成 BMC 左半部的「價值創造」面向。" },
+  { q: "Unilever 永續生活計畫的核心理念是？", opts: ["永續與利潤完全矛盾","永續是純粹的公關策略","永續與成長相互強化","永續只適合非營利組織"], ans: 2, exp: "Polman 認為永續與成長並非對立而是相互強化的，這與 Porter & Kramer 的共享價值概念一致。" },
+  { q: "Porter & Kramer 的「共享價值」與傳統 CSR 的關鍵差異是？", opts: ["共享價值不關心社會","共享價值是重新分配既有價值","共享價值是擴大經濟與社會價值的總量","共享價值只適用於大型企業"], ans: 2, exp: "共享價值不是重新分配（如公平貿易），而是透過商業創新擴大價值總量（如改善農業效率使農民收入增長 300%）。" },
+  { q: "完全競爭市場的特徵不包含？", opts: ["許多小型企業","企業為價格接受者","高進入障礙","商品化產品"], ans: 2, exp: "完全競爭市場的特徵是低進入障礙、許多小型企業、商品化產品、企業為價格接受者。高進入障礙屬於寡占或壟斷。" },
+  { q: "Unilever 永續品牌到 2020 年的成長表現為何？", opts: ["成長速度與其他品牌相同","成長速度比其他品牌快 69%","成長速度低於其他品牌","沒有明顯差異"], ans: 1, exp: "永續品牌（Dove、Lipton、Ben & Jerry's 等）成長速度比其他品牌快 69%，貢獻了 75% 的公司成長。" },
+  { q: "「價值永續」在商業模式中的意涵是？", opts: ["企業永遠不會倒閉","商業模式難以被模仿或替代","產品永遠不需要更新","營收永遠不會下降"], ans: 1, exp: "價值永續指的是商業模式的可防禦性——難以被競爭者模仿（如獨特能力、網路效應）或被替代方案取代。" }
+],
+
+m6_nav: "6. 外部資源",
+m6_title: "延伸閱讀與外部資源",
+m6_desc: "精選與本單元主題相關的高品質外部學習資源",
+
+mlab_nav: "7. 互動實驗室",
+mlab_title: "互動實驗室",
+mlab_desc: "透過互動圖表與模擬工具，深化對核心概念的理解",
+
+date: "Version 2026.03.15",
+copyright: "For Educational Use Only",
+architect_label: "Architect:",
+architect_name: "Prof. Shihmin Lo",
+architect_url: "https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
+},
+en: {
+title: "Goals, Values & Performance × Strategic Innovation",
+subtitle: "SMMC · LN-2 Interactive Learning",
+nav_modules: "Module Menu", nav_prev: "Previous", nav_next: "Next",
+key_terms: "Key Terms", flip_prompt: "Click to flip", audio_read: "Audio Guide",
+quiz_title: "Module Quiz (Random 4 Questions)",
+submit: "Submit", retry: "Retry",
+score: "Score", correct: "Correct", incorrect: "Incorrect", explanation: "Explanation",
+analytics_title: "Learning Analytics",
+analytics_desc: "Track your learning progress, interaction frequency, and quiz performance",
+analytics_form_title: "Learner Information",
+analytics_group: "Group", analytics_dept: "Department",
+analytics_dept_ph: "e.g., IBS3",
+analytics_id: "Student ID", analytics_id_ph: "e.g., 112212099",
+analytics_name: "Name", analytics_name_ph: "e.g., Jimmy Lo",
+analytics_export_csv: "Export CSV Record",
+analytics_fill_required: "Please complete all fields to unlock export",
+group_options: ["G1","G2","G3","G4","G5","Others"],
+analytics_total_time: "Total Study Time", analytics_total_clicks: "Total Clicks",
+analytics_overall_acc: "Overall Quiz Accuracy",
+analytics_module: "Module", analytics_time: "Time Spent",
+analytics_clicks: "Clicks", analytics_acc: "Accuracy",
+analytics_correct_ans_total: "Correct / Attempted / Total",
+analytics_no_data: "Not yet tested", analytics_sec: "s", analytics_times: "x",
+
+m0_nav: "0. Overview",
+m0_title: "Goals, Values & Performance × Strategic Innovation & Business Model",
+m0_intro: "This unit integrates Grant's Chapter 2 with Prof. Lo's LN-2 lecture, starting from 'strategy as a quest for value.' It systematically examines how firms create, measure, distribute, and sustain value—covering the V-P-C framework, financial performance analysis, enterprise valuation, the balanced scorecard, business model canvas, and CSR with shared value.",
+m0_why: "Why Do These Topics Matter?",
+m0_why_desc: "In an increasingly competitive global environment, understanding the complete value creation chain—from consumers' maximum willingness-to-pay to a firm's economic profit—is a core competency for strategic managers. Whether designing a startup's business model or diagnosing a multinational's performance, these analytical tools are indispensable.",
+m0_stats: [
+  { val: "5", label: "Learning Modules" },
+  { val: "40", label: "Quiz Questions" },
+  { val: "15", label: "Flip Cards" },
+  { val: "5", label: "Micro Cases" }
+],
+m0_modules: [
+  { num: "01", title: "The Nature of Value Creation: V-P-C Framework", desc: "From consumer WTP to economic value creation—the core proposition of strategy" },
+  { num: "02", title: "Profit Measurement & Performance Diagnosis", desc: "Accounting vs. economic profit, DuPont decomposition, UPS vs. FedEx case" },
+  { num: "03", title: "Enterprise Value & Real Options", desc: "DCF valuation, WACC, book vs. market value, real options thinking" },
+  { num: "04", title: "Performance Targets & Balanced Scorecard", desc: "Financial disaggregation, BSC four perspectives, Boeing's lesson" },
+  { num: "05", title: "Business Model & Strategic Innovation", desc: "Business Model Canvas, strategic innovation, CSR & shared value" }
+],
+m0_start: "Start Learning →",
+
+m1_nav: "1. V-P-C Framework",
+m1_title: "The Nature of Value Creation: V-P-C Framework & Strategic Core",
+m1_p1: "The essence of strategy is the quest for value. Every enterprise has a unique mission—Henry Ford to build cars for the multitude, Steve Jobs to bring personal computing power to individuals, IKEA to create a better everyday life for many. Yet beneath these diverse purposes lies a common denominator: the desire and necessity to create value.",
+m1_p2: "\"Value can be created in two ways: by production (physically transforming less valued inputs into more valued outputs) and by commerce (repositioning products through arbitrage across time and space).\" — Robert M. Grant",
+m1_p3: "The V-P-C framework (Value-Price-Cost) is the core tool for analyzing value creation and distribution. Consumer's maximum willingness-to-pay (WTP, V) minus firm cost (C) equals economic value created (V-C). Price (P) determines how this value is split between consumer surplus (V-P) and firm profit (P-C). Firms can pursue superior profitability through two paths: 'doing better' (efficiency-driven, cost reduction) or 'doing different' (effectiveness-driven, value enhancement).",
+m1_cards: [
+  { title: "Value Through Production", desc: "Physically transforming less-valued products into more-valued ones—e.g., turning coffee beans and milk into a cappuccino." },
+  { title: "Value Through Commerce", desc: "Repositioning products via arbitrage in space and time—trade moves products from lower-value to higher-value locations; speculation across time." }
+],
+m1_case_title: "Micro Case: A Taiwanese Breakfast Shop's V-P-C",
+m1_case_desc: "A traditional breakfast shop in Taichung makes egg crepes at a cost of NT$12 (ingredients, gas, packaging), selling for NT$30, while a rushing commuter's WTP reaches NT$50. Economic value created = 50 - 12 = 38. Consumer surplus = 50 - 30 = 20. Firm profit = 30 - 12 = 18. If the shop introduces a 'cheese egg crepe' raising perceived value to NT$65, even with cost rising to NT$16 and price to NT$40, both consumer surplus and firm profit expand. This exemplifies the 'value up' strategy.",
+m1_terms: [
+  { front: "V-P-C Framework", back: "Value-Price-Cost Framework: Analyzes how economic value is created and distributed using three elements—consumer WTP (V), price (P), and firm cost (C)." },
+  { front: "Consumer Surplus", back: "The difference between the consumer's maximum willingness-to-pay (V) and the actual price paid (P), representing the net benefit consumers receive from a transaction." },
+  { front: "Economic Value Created", back: "The total value created in a transaction, calculated as consumer WTP (V) minus firm cost (C). This total is then split between consumer surplus and firm profit." }
+],
+m1_q: [
+  { q: "In the V-P-C framework, how is Economic Value Created calculated?", opts: ["P - C","V - P","V - C","V - P - C"], ans: 2, exp: "Economic Value Created = V (consumer WTP) - C (firm cost), representing all value created in the transaction." },
+  { q: "In the V-P-C framework, consumer surplus refers to?", opts: ["V - C","P - C","V - P","V + P"], ans: 2, exp: "Consumer surplus = V - P, the difference between maximum WTP and actual price paid." },
+  { q: "Value can be created through which two methods?", opts: ["Production & consumption","Production & commerce","Pricing & promotion","R&D & marketing"], ans: 1, exp: "Grant identifies two value creation methods: 'production' (physical transformation) and 'commerce' (arbitrage across time and space)." },
+  { q: "'Doing better vs. doing different' corresponds to which strategic directions?", opts: ["Efficiency vs. effectiveness","Cost vs. quality","Short-term vs. long-term","Internal vs. external"], ans: 0, exp: "'Doing better' pursues efficiency (cost reduction); 'doing different' pursues effectiveness (value enhancement)—two distinct paths to profitability." },
+  { q: "How is firm profit calculated in the V-P-C framework?", opts: ["V - C","V - P","P - C","P + C"], ans: 2, exp: "Firm profit = P (price) - C (cost), the firm's share of the value created." },
+  { q: "How does commerce create value?", opts: ["Physically transforming products","Through arbitrage across time and space","Reducing production costs","Increasing production efficiency"], ans: 1, exp: "Commerce creates value not by changing products physically but by repositioning them across space (trade) and time (speculation)." },
+  { q: "If V = 100, P = 70, C = 40, what is the economic value created?", opts: ["30","60","70","100"], ans: 1, exp: "Economic Value Created = V - C = 100 - 40 = 60. This 60 is split into consumer surplus (30) and firm profit (30)." },
+  { q: "IKEA's mission statement embodies which value creation logic?", opts: ["Pure shareholder value maximization","Creating affordable everyday value for the majority","Luxury market high-price strategy","Making CSR the primary goal"], ans: 1, exp: "IKEA is committed to offering well-designed home furnishing at prices affordable for the many—embodying value creation for consumers." }
+],
+
+m2_nav: "2. Performance Diagnosis",
+m2_title: "Profit Measurement & Performance Diagnosis: From Accounting to Economic Profit",
+m2_p1: "Profit is the surplus of revenues over costs available for distribution to owners. But profit maximization as a goal is full of ambiguity: maximize total profit or rate of profit? Over what time period? What measure? Accounting profit conflates two types of return—the normal return to capital (compensating investors) and economic profit (the true surplus after all inputs are paid for).",
+m2_p2: "\"EVA = Net Operating Profit After Tax (NOPAT) – Cost of Capital (Capital Employed × WACC). Economic profit's core value: it sets a more demanding performance discipline for managers.\"",
+m2_p3: "The DuPont identity decomposes return on capital into profit margin and capital turnover, which can be further disaggregated into component cost and asset efficiency ratios. Comparing UPS and FedEx (2010-2014): UPS's ROCE was 33.3% vs. FedEx's 15.3%. Decomposition reveals UPS had higher operating margin (10.1% vs. 6.5%) and capital turnover (3.28 vs. 2.34). Deeper analysis shows UPS had higher labor cost ratios (54.8% vs. 37.0%) but significantly lower fuel, maintenance, depreciation, and other costs than FedEx.",
+m2_cards: [
+  { title: "Limitations of Accounting Profit", desc: "Accounting profit doesn't deduct cost of capital, potentially making capital-intensive firms appear profitable while actually destroying shareholder value." },
+  { title: "EVA's Strategic Value", desc: "After implementing EVA, Diageo found that premium aged whisky—once considered star products—was far less profitable than vodka when capital costs were included. This drove major resource reallocation and divestitures." }
+],
+m2_case_title: "Micro Case: Diageo's EVA Revolution",
+m2_case_desc: "Diageo, the world's largest spirits company (Johnnie Walker, Smirnoff, Guinness), traditionally measured product lines by accounting margins. Premium aged whiskies (Talisker, Lagavulin) and cognacs (Hennessy) were considered stars due to high margins. EVA analysis revealed a hidden truth: these products required years of aging, tying up massive capital. After deducting capital costs, their economic profit was far below Smirnoff vodka, which could be produced and sold within weeks. This drove three key decisions: (1) reallocating advertising budgets to fast-turnover brands; (2) EVA analysis of every product and major customer in the Pillsbury food division, eliminating inefficient products; (3) ultimately selling Pillsbury to General Foods and Burger King to a PE firm. EVA was also embedded in incentive pay for 1,400 managers. This case perfectly illustrates how economic profit thinking fundamentally changes resource allocation logic.",
+m2_terms: [
+  { front: "EVA (Economic Value Added)", back: "NOPAT minus cost of capital (Capital × WACC), devised by Stern Stewart. Measures whether a firm truly creates surplus value above the cost of all capital employed." },
+  { front: "DuPont Identity", back: "Decomposes ROE into ROS × Asset Turnover × (1 + D/E), used to diagnose profitability sources and identify root causes of performance issues." },
+  { front: "ROCE", back: "Return on Capital Employed: Operating profit divided by (equity + long-term debt), measuring the efficiency of generating profit from all invested capital." }
+],
+m2_q: [
+  { q: "What is the EVA formula?", opts: ["Revenue - Costs","NOPAT - Cost of Capital","Net Income - Taxes","EBITDA - Depreciation"], ans: 1, exp: "EVA = NOPAT - (Capital Employed × WACC), measuring true economic profit after deducting all capital opportunity costs." },
+  { q: "The DuPont identity decomposes ROE into which components?", opts: ["Revenue growth × Profit margin","ROS × Asset turnover × Equity multiplier","ROCE × WACC","Gross margin × Net margin"], ans: 1, exp: "ROE = ROS × S/A × (1 + D/E), the fundamental tool for performance diagnosis." },
+  { q: "What was Diageo's key finding after implementing EVA?", opts: ["Premium whisky was the most profitable","Vodka's economic profit exceeded aged whisky","All product lines were equally profitable","The food division was most valuable"], ans: 1, exp: "Aged spirits tied up massive capital; after deducting capital costs, their economic profit was far below fast-turnover vodka." },
+  { q: "What primarily explains UPS's higher ROCE vs. FedEx?", opts: ["UPS's smaller size","UPS had higher operating margin and capital turnover","FedEx had lower revenue","UPS had lower labor costs"], ans: 1, exp: "UPS's operating margin (10.1% vs. 6.5%) and capital turnover (3.28 vs. 2.34) were both superior to FedEx." },
+  { q: "The key difference between accounting and economic profit is?", opts: ["Time period","Whether cost of capital is deducted","Whether revenue is included","Currency used"], ans: 1, exp: "Economic profit additionally deducts the opportunity cost of all capital (including equity), setting a stricter performance standard." },
+  { q: "In the UPS vs. FedEx analysis, which FedEx cost ratio was significantly higher?", opts: ["Labor costs/Sales","Fuel costs/Sales","Admin expenses/Sales","R&D expenses/Sales"], ans: 1, exp: "FedEx had higher fuel (10.7% vs. 7.5%), maintenance (4.3% vs. 2.3%), and depreciation (5.3% vs. 3.4%) costs than UPS." },
+  { q: "What should be the starting point of performance diagnosis?", opts: ["Immediately set new targets","Assess current performance, then identify root causes","Immediate restructuring","Copy competitors"], ans: 1, exp: "Like medical practice: first assess the patient's health (performance appraisal), then determine causes of illness (diagnosis), then prescribe (strategy)." },
+  { q: "What are EVA's two main advantages as a performance metric?", opts: ["Simple and easy to understand","Sets stricter performance discipline and improves capital allocation","Only applicable to large firms","Replaces all other financial metrics"], ans: 1, exp: "EVA creates more demanding standards for managers and optimizes resource allocation between businesses by reflecting true capital costs." }
+],
+
+m3_nav: "3. Enterprise Value",
+m3_title: "Enterprise Value & Real Options: DCF, WACC & Forward-Looking Thinking",
+m3_p1: "Enterprise value equals the NPV of future free cash flows, discounted at WACC. McKinsey identifies three value drivers: ROCE, WACC, and operating profit growth. However, NPV is not the only source of firm value—real options also constitute an important component.",
+m3_p2: "\"In a world of uncertainty where investments, once made, are irreversible, flexibility is valuable. Instead of committing to an entire project, there is virtue in breaking it into phases where each decision point allows assessment based on prevailing circumstances.\"",
+m3_p3: "Real options extend financial option pricing principles to real investment and strategy analysis. Shell's small joint R&D investments in hydrogen technology may yield lower short-term returns than core oil/gas operations, but they create an 'option': if fuel cells become commercially viable, Shell can exercise the option for large-scale commercialization. Higher uncertainty and longer option duration increase option value. Growth options include platform investments (3M's nanotechnology, Google's search engine), strategic alliances (Virgin Group's JVs), and organizational capabilities (Apple's integration of hardware, software, and design).",
+m3_cards: [
+  { title: "Book Value vs. Market Value", desc: "Among S&P 500 firms, book value as a share of total market value declined from 80% in 1980 to 30% in 2010. 70% of market value now comes from intangible assets—patents, brands, talent, and hard-to-replicate capabilities." },
+  { title: "Six Determinants of Real Option Value", desc: "(1) Higher project NPV → higher option value; (2) Higher investment cost → lower value; (3) Greater uncertainty → higher value; (4) Longer duration → higher value; (5) Value erosion during waiting → lower value; (6) Higher interest rate → higher value from deferral." }
+],
+m3_case_title: "Micro Case: Shell's Hydrogen Energy Options",
+m3_case_desc: "Shell invested in hydrogen R&D joint ventures in the 2000s. By traditional NPV, expected returns were far below core oil/gas—seemingly inconsistent with shareholder interests. But Shell's leadership viewed these through a real options lens: Shell wasn't building large-scale hydrogen plants but accumulating technological knowledge and IP—equivalent to purchasing a 'call option.' If future conditions restrict hydrocarbons and fuel cells become commercially viable, Shell could 'exercise' this option, converting small R&D investments into large-scale deployment. This 'phased investment + gate decision' thinking is a classic application of real options in strategy. Similar logic appeared in VCs' $38.3M investment in Kik—a messaging app with 200M users but almost no revenue. Investors weren't buying current profitability but a growth option for platform expansion and advertising monetization.",
+m3_terms: [
+  { front: "NPV (Net Present Value)", back: "The sum of future cash flows discounted to present at an appropriate rate. Enterprise Value = Σ[FCF_t / (1+WACC)^t]." },
+  { front: "Real Options", back: "Applying financial option concepts to real investment decisions, giving firms the right but not obligation to undertake an investment, creating flexibility value in uncertain environments." },
+  { front: "WACC", back: "Weighted Average Cost of Capital: The blended cost of all capital sources (equity and debt), used to discount future cash flows for enterprise valuation." }
+],
+m3_q: [
+  { q: "How is enterprise value calculated using DCF?", opts: ["Revenue × Profit margin","NPV of future free cash flows discounted at WACC","Total assets - Total liabilities","Share price × Outstanding shares"], ans: 1, exp: "V = Σ[FCF_t / (1+WACC)^t], enterprise value equals future free cash flows discounted at WACC." },
+  { q: "McKinsey's three enterprise value drivers are?", opts: ["Revenue, cost, profit","ROCE, WACC, profit growth rate","Market share, brand value, technology","Talent, processes, organization"], ans: 1, exp: "Creating enterprise value requires increasing ROCE, reducing WACC, and growing operating profits." },
+  { q: "The core concept of real options is?", opts: ["Firms must invest in all projects immediately","In uncertain environments, retaining flexibility (choice to act) is itself valuable","Only applicable to large firms","Unrelated to financial markets"], ans: 1, exp: "Real options' core: the flexibility of 'can but need not'—phasing projects with the option to continue, modify, or abandon at each stage." },
+  { q: "How did S&P 500 book-to-market ratio change from 1980 to 2010?", opts: ["Rose from 30% to 80%","Stable at ~50%","Declined from 80% to 30%","Declined from 100% to 50%"], ans: 2, exp: "Book value share fell from 80% to 30%, reflecting the surging importance of intangible assets in enterprise value." },
+  { q: "What was the strategic logic behind Shell's hydrogen investments?", opts: ["Pursuing short-term high returns","Creating a growth option for future large-scale commercialization through small R&D investments","Hydrogen was already commercially viable","Boosting short-term stock price"], ans: 1, exp: "Shell was purchasing an 'option': if conditions mature, small R&D investments can convert to large-scale deployment." },
+  { q: "How does uncertainty affect real option value?", opts: ["Greater uncertainty lowers option value","Greater uncertainty increases option value","Uncertainty is unrelated to option value","Only low uncertainty creates option value"], ans: 1, exp: "Counter-intuitively, greater uncertainty increases the value of retaining flexibility (waiting for more information before deciding)." },
+  { q: "VC investment in Kik embodies what concept?", opts: ["Short-term profit seeking","Investment in proven revenue models","A growth option for future platform expansion","Hedging strategy"], ans: 2, exp: "Kik had 200M users but almost no revenue—investors were buying a growth option for platform expansion and ad monetization." },
+  { q: "Which is NOT a form of growth option?", opts: ["Platform investments","Strategic alliances","Organizational capabilities","One-time large-scale irreversible investment"], ans: 3, exp: "Growth options emphasize flexibility and phasing; one-time irreversible large investments are precisely what option thinking aims to avoid." }
+],
+
+m4_nav: "4. Balanced Scorecard",
+m4_title: "Performance Targets & Balanced Scorecard: From Strategy to Execution",
+m4_p1: "Setting performance targets is a core strategic planning task. Targets must align with long-term goals, link to strategy, and be actionable for organizational members. However, two fundamental dilemmas exist: first, targeting the goal itself may undermine its achievement (firms most committed to shareholder value maximization often perform worst); second, when goals are disaggregated into specific metrics, the means of achieving targets may contradict the original goal.",
+m4_p2: "\"In Soviet shoe factories, monthly quantity targets resulted in mass production of single-size, low-quality shoes. In Britain's NHS, the 8-minute ambulance response target was met by substituting single paramedics in cars for regular ambulance crews.\"",
+m4_p3: "Kaplan and Norton's Balanced Scorecard (BSC) addresses these dilemmas by integrating four perspectives: financial (how do we look to shareholders?), customer (how do customers see us?), internal process (what must we excel at?), and learning & growth (can we continue to improve and create value?). By balancing strategic and financial goals, BSC links business strategy with shareholder value creation while providing measurable targets.",
+m4_cards: [
+  { title: "Boeing's Lesson: The Shareholder Value Trap", desc: "1960-1990 Boeing focused on building great planes—and delivered excellent financials. After the 1997 McDonnell Douglas merger, new management pushed shareholder value maximization. Result: underinvestment in new civil projects, market leadership ceded to Airbus, CEO resigned with stock price 20% below entry. This extended to the 2018-2019 737 MAX crisis: excessive cost-cutting eroded safety culture, causing 346 deaths." },
+  { title: "Regional Airline's BSC Strategy Map", desc: "Financial: Increase profitability → Lower costs + Increase revenue. Customer: On-time flights → More customers → Low prices. Internal: Improve turnaround time. Learning: Train ground crews, employee stock plan. Each perspective forms a causal chain." }
+],
+m4_case_title: "Micro Case: Boeing's Collapse from Engineering Excellence to Financial Focus",
+m4_case_desc: "Boeing's story is one of management history's most thought-provoking cases. Under CEO Bill Allen (1945-1968), Boeing was an engineering-first culture. When the board reviewed Boeing's largest-ever investment—the 747—non-executive director Crawford Greenwalt asked about financial projections. Allen's response was vague. Greenwalt buried his head in his hands: 'My God, these guys don't even know what the ROI will be.' Yet the 747 became one of aviation's greatest successes. The turning point was the 1997 McDonnell Douglas merger. New leaders Phil Condit and Harry Stonecipher announced a 'value-based environment where unit cost, ROI, and shareholder return are the measures.' The result: slashed R&D, surrendered market leadership to Airbus, diversified into defense/satellites. When Condit resigned in 2003, the stock was 20% below his starting price. This cultural shift reached its most devastating consequence in the 2018-2019 737 MAX crisis: excessive cost compression and performance pressure eroded safety culture, causing two crashes, 346 deaths, a global grounding, and over $20 billion in direct losses. Boeing perfectly illustrates John Kay's 'obliquity' principle: sometimes pursuing goals indirectly is more effective than direct pursuit.",
+m4_terms: [
+  { front: "Balanced Scorecard (BSC)", back: "Developed by Kaplan & Norton, integrating four perspectives—financial, customer, internal process, learning & growth—as a strategy execution and performance management tool." },
+  { front: "Obliquity", back: "John Kay's principle: indirect pursuit of goals is often more effective than direct pursuit. E.g., firms focused on excellent products often outperform those directly pursuing profits." },
+  { front: "Strategy Map", back: "A visual tool linking BSC's four perspectives through cause-and-effect relationships, showing how learning drives processes, which affect customers and ultimately financial outcomes." }
+],
+m4_q: [
+  { q: "What are BSC's four perspectives?", opts: ["Production, marketing, finance, HR","Financial, customer, internal process, learning & growth","Cost, revenue, profit, market share","Short-term, medium-term, long-term, sustainable"], ans: 1, exp: "BSC's four perspectives: financial (shareholder view), customer, internal business process, innovation & learning." },
+  { q: "Boeing's core strategic lesson is?", opts: ["Financial targets should be the sole strategic focus","Direct pursuit of shareholder value maximization can backfire","Engineering quality doesn't matter","Mergers are always wrong"], ans: 1, exp: "Boeing's shift from engineering excellence to shareholder value pursuit led to lost market leadership and ultimately a safety crisis." },
+  { q: "The second type of performance target problem is?", opts: ["Too few targets to measure","Means of achieving metrics may contradict the original goal","Targets too easy to achieve","Financial metrics too complex"], ans: 1, exp: "Soviet shoe factories and UK NHS examples show: when specific metrics become targets, people achieve them in distorted ways that defeat the original purpose." },
+  { q: "How does BSC resolve the tension between short-term financial targets and long-term strategy?", opts: ["Completely abandons financial metrics","Integrates financial with strategic and operational targets","Focuses only on short-term metrics","Converts all targets to financial numbers"], ans: 1, exp: "BSC balances financial targets with customer, process, and learning goals, preventing short-term financial pursuit from undermining long-term value creation." },
+  { q: "Why did Boeing perform well financially during the Bill Allen era?", opts: ["Because they directly pursued financial returns","Because focus on building great planes made financial success a byproduct","Because of many acquisitions","Because they cut R&D spending"], ans: 1, exp: "Allen's Boeing centered on engineering excellence—this 'indirect pursuit of profits' paradoxically delivered outstanding financial results." },
+  { q: "In a strategy map, how do the perspectives relate?", opts: ["Independently unrelated","Bottom-up causal chain (learning→process→customer→financial)","Top-down command chain","Only financial perspective has causal links"], ans: 1, exp: "Strategy maps show: learning & growth drives internal process improvement, which enhances customer satisfaction, ultimately achieving financial goals." },
+  { q: "Which best describes the 'obliquity' principle?", opts: ["The more specific the goal, the better","Direct goal pursuit is most effective","Indirect goal pursuit can be more effective than direct","All goals should be quantified"], ans: 2, exp: "Kay's obliquity: like Boeing under Allen—focusing on excellent products rather than profits paradoxically achieved better financial results." },
+  { q: "In the regional airline's BSC, 'improve turnaround time' belongs to which perspective?", opts: ["Financial","Customer","Internal process","Learning & growth"], ans: 2, exp: "Ground turnaround time is an internal operations metric driving 'on-time flights' (customer) and 'lower costs' (financial)." }
+],
+
+m5_nav: "5. Business Model Innovation",
+m5_title: "Business Model & Strategic Innovation: Value Proposition, Capture & Sustainability",
+m5_p1: "A business model is the complete blueprint for 'how to run a business.' It encompasses four elements: (1) Value Proposition—what problems do we solve for which customers? (2) Value Creation & Delivery—through internal activity systems and external value networks; (3) Value Capture & Distribution—revenue and profit stream design; (4) Value Sustainability—making the model hard to imitate or substitute. Strategic innovation goes beyond product/process innovation—it's about establishing new competitive rules and business models.",
+m5_p2: "\"Innovation is about making change/difference, a disequilibrium phenomenon, a recombination rather than discovery, a matter of degree not 0 or 1. Strategic innovation is about initiating a new business model and introducing a new rule of competition.\" — Shihmin Lo",
+m5_p3: "The Business Model Canvas (BMC) visualizes the business model through nine building blocks: value proposition, customer segments, channels, customer relationships, key activities, key resources, key partners, cost structure, and revenue streams. Market structure profoundly affects value capture: from perfect competition (fragmented, low profitability) to monopoly (consolidated, high profitability), pricing power and entry barriers determine how much economic value a firm can retain. Additionally, Porter & Kramer's 'shared value' concept shows firms can create competitive advantage while generating positive social outcomes, as demonstrated by Unilever's Sustainable Living Plan.",
+m5_cards: [
+  { title: "BMC's Nine Blocks & V-P-C Mapping", desc: "BMC left side (key partners, activities, resources) maps to 'value creation' and costs; center (value proposition) maps to 'value'; right side (customer segments, relationships, channels) maps to 'value delivery'; bottom (cost structure, revenue streams) maps to 'value capture.'" },
+  { title: "Market Structure & Value Capture", desc: "Perfect competition → price takers, low barriers, commodity products. Monopolistic competition → limited pricing power, differentiated products. Oligopoly → few large firms, high barriers. Monopoly → considerable pricing power, unique products, very high barriers." }
+],
+m5_case_title: "Micro Case: Unilever's Sustainable Living Plan—Shared Value in Practice",
+m5_case_desc: "In November 2010, under CEO Paul Polman, Unilever launched the Sustainable Living Plan with three goals: help 1 billion+ people improve health by 2020; halve environmental footprint by 2030; enhance livelihoods of millions in the value chain. Polman's core belief: sustainability and growth reinforce each other—perfectly aligned with Porter & Kramer's shared value concept. Results by 2020: sustainable brands (Dove, Lipton, Ben & Jerry's) grew 69% faster than others, contributing 75% of company growth. Manufacturing carbon emissions fell 65% from 2008. Global factories achieved zero waste-to-landfill by 2014. Lifebuoy's handwashing programs reached 1 billion+ people. Annualized stock returns of 10% from 2010-2020 outperformed P&G and Nestlé. However, when Polman announced plans to lobby global leaders on climate agreements at Davos 2015, some questioned whether he was prioritizing global over company interests—highlighting the tension between strategic CSR and broader social advocacy. Overall, Unilever powerfully demonstrates that embedding sustainability into core business strategy (rather than peripheral CSR) can simultaneously create shareholder and social value.",
+m5_terms: [
+  { front: "Business Model Canvas (BMC)", back: "Proposed by Osterwalder, a nine-block visual tool systematically describing how a firm creates, delivers, and captures value." },
+  { front: "Shared Value", back: "Porter & Kramer's concept: strategies that enhance firm competitiveness while improving social conditions. Not redistributing existing value but expanding the total pool of economic and social value." },
+  { front: "Strategic Innovation", back: "Going beyond product/process innovation to initiate entirely new business models and introduce new competitive rules, creating disequilibrium in markets." }
+],
+m5_q: [
+  { q: "Which is NOT one of the four business model elements?", opts: ["Value proposition","Value creation & delivery","Value capture & distribution","Value pricing strategy"], ans: 3, exp: "The four elements are: value proposition, value creation & delivery, value capture & distribution, and value sustainability. Pricing is part of capture, not a separate element." },
+  { q: "The key difference between strategic innovation and product/process innovation?", opts: ["Strategic innovation only focuses on technology","Strategic innovation establishes new business models and competitive rules","Strategic innovation doesn't require innovation","Strategic innovation only applies to startups"], ans: 1, exp: "Strategic innovation goes beyond product/process improvements to establish entirely new business models and change competitive rules." },
+  { q: "In BMC, 'key partners' belongs to which value dimension?", opts: ["Value proposition","Value creation","Value capture","Value delivery"], ans: 1, exp: "Key partners, activities, and resources together form BMC's left side 'value creation' dimension." },
+  { q: "Unilever's Sustainable Living Plan's core belief is?", opts: ["Sustainability and profit are contradictory","Sustainability is purely a PR strategy","Sustainability and growth reinforce each other","Sustainability only suits nonprofits"], ans: 2, exp: "Polman believed sustainability and growth reinforce each other, consistent with Porter & Kramer's shared value concept." },
+  { q: "The key difference between Porter & Kramer's 'shared value' and traditional CSR?", opts: ["Shared value doesn't care about society","Shared value redistributes existing value","Shared value expands the total pool of economic and social value","Shared value only applies to large firms"], ans: 2, exp: "Shared value isn't redistribution (like fair trade) but expanding total value (like improving farming efficiency to increase farmer income by 300%)." },
+  { q: "Which is NOT a characteristic of perfect competition?", opts: ["Many small firms","Firms are price takers","High entry barriers","Commodity products"], ans: 2, exp: "Perfect competition features low entry barriers, many small firms, commodity products, and price-taking firms. High barriers belong to oligopoly/monopoly." },
+  { q: "How did Unilever's sustainable brands perform by 2020?", opts: ["Same growth rate as other brands","Grew 69% faster than other brands","Grew slower than other brands","No significant difference"], ans: 1, exp: "Sustainable brands (Dove, Lipton, Ben & Jerry's) grew 69% faster than others, contributing 75% of company growth." },
+  { q: "What does 'value sustainability' mean in a business model?", opts: ["The firm will never fail","The business model is hard to imitate or substitute","Products never need updating","Revenue will never decline"], ans: 1, exp: "Value sustainability refers to the business model's defensibility—being hard for competitors to imitate (unique capabilities, network effects) or substitute." }
+],
+
+m6_nav: "6. Resources",
+m6_title: "External Learning Resources",
+m6_desc: "Curated high-quality external resources related to this unit's topics",
+
+mlab_nav: "7. Interactive Lab",
+mlab_title: "Interactive Lab",
+mlab_desc: "Deepen understanding of core concepts through interactive charts and simulation tools",
+
+date: "Version 2026.03.15",
+copyright: "For Educational Use Only",
+architect_label: "Architect:",
+architect_name: "Prof. Shihmin Lo",
+architect_url: "https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
+}
+};
+
+// SVG Icons
+const IconBookOpen = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+const IconAlertTriangle = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const IconChevronRight = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"/></svg>;
+const IconMenu = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>;
+const IconX = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconMoon = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+const IconSun = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+const IconPlay = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+const IconPause = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+const IconSquare = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>;
+const IconChevronUp = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15"/></svg>;
+const IconArrowRight = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const IconTrendingUp = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+const IconCpu = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>;
+const IconGlobe = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
+const IconLayers = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const IconFlag = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>;
+const IconZap = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const IconFlask = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 3h6v7l5 8H4l5-8V3z"/><line x1="8" y1="1" x2="16" y2="1"/></svg>;
+const IconZapLab = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const IconActivity = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
+const IconCheckCircle = ({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+
+const N = 5;
+const TOTAL = 1 + N + 3; // M0 + M1-M5 + M6(resources) + M7(lab) + M8(analytics) = 9
+
+const FlipCard = ({ front, back, t }) => {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <div className="perspective cursor-pointer h-36" onClick={() => setFlipped(!flipped)}>
+      <div className={`transform-style-3d relative w-full h-full transition-transform duration-500 ${flipped ? 'rotate-y-180' : ''}`}>
+        <div className="backface-hidden absolute inset-0 bg-white dark:bg-slate-800 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
+          <p className="font-serif font-bold text-center text-[#004030] dark:text-[#D8C3A5] text-sm">{front}</p>
+          <p className="text-xs text-slate-400 mt-2">{t.flip_prompt}</p>
+        </div>
+        <div className="backface-hidden rotate-y-180 absolute inset-0 bg-[#004030] dark:bg-slate-700 rounded-xl p-4 flex items-center justify-center">
+          <p className="text-sm text-center text-[#D8C3A5] dark:text-slate-200 leading-relaxed">{back}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ModuleQuiz = ({ questions, t, moduleId, onQuizSubmit }) => {
+  const [selected, setSelected] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [quizIndices] = useState(() =>
+    [...Array(questions.length).keys()].sort(() => Math.random() - 0.5).slice(0, 4)
+  );
+  return (
+    <div className="mt-8 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+      <h3 className="text-lg font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-6">{t.quiz_title}</h3>
+      {quizIndices.map((qIdx, i) => {
+        const q = questions[qIdx];
+        return (
+          <div key={qIdx} className="mb-6">
+            <p className="font-bold mb-3">{i+1}. {q.q}</p>
+            <div className="space-y-2">
+              {q.opts.map((opt, oIdx) => (
+                <button key={oIdx} onClick={() => !submitted && setSelected(s => ({...s, [i]: oIdx}))}
+                  className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm
+                    ${submitted
+                      ? oIdx === q.ans ? 'bg-green-100 border-green-500 dark:bg-green-900/30'
+                        : selected[i] === oIdx ? 'bg-red-100 border-red-400 dark:bg-red-900/30' : 'border-slate-200 dark:border-slate-700'
+                      : selected[i] === oIdx ? 'border-[#004030] dark:border-[#D8C3A5] bg-[#004030]/5' : 'border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                    }`}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+            {submitted && <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 italic">{t.explanation}：{q.exp}</p>}
+          </div>
+        );
+      })}
+      {!submitted
+        ? <button onClick={() => { setSubmitted(true); const c = quizIndices.filter((qIdx,i) => selected[i] === questions[qIdx].ans).length; onQuizSubmit(moduleId, c, quizIndices.length); }}
+            disabled={Object.keys(selected).length < quizIndices.length}
+            className="px-6 py-2 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40">
+            {t.submit}
+          </button>
+        : <div className="flex items-center gap-4">
+            <span className="font-bold text-[#004030] dark:text-[#D8C3A5]">{t.score}: {quizIndices.filter((qIdx,i) => selected[i] === questions[qIdx].ans).length}/{quizIndices.length}</span>
+            <button onClick={() => { setSelected({}); setSubmitted(false); }}
+              className="px-6 py-2 border border-[#004030] dark:border-[#D8C3A5] text-[#004030] dark:text-[#D8C3A5] font-bold rounded-lg">
+              {t.retry}
+            </button>
+          </div>
+      }
+    </div>
+  );
+};
+
+const LinkCard = ({label, url, desc}) => (
+  <a href={url} target="_blank" rel="noopener noreferrer"
+    className="block bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all group">
+    <div className="flex items-start justify-between gap-2 mb-2">
+      <span className="font-bold font-serif text-sm text-[#004030] dark:text-[#D8C3A5] group-hover:underline leading-snug">{label}</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-30 group-hover:opacity-70 mt-0.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </div>
+    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+  </a>
+);
+
+// Lab Components (top-level, outside App)
+const VPCSimulator = ({lang}) => {
+  const [v, setV] = useState(100);
+  const [p, setP] = useState(60);
+  const [c, setC] = useState(30);
+  const evc = v - c;
+  const cs = Math.max(0, v - p);
+  const fp = Math.max(0, p - c);
+  const maxH = 200;
+  const scale = maxH / Math.max(v, 1);
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'V-P-C 互動模擬器':'V-P-C Interactive Simulator'}</h4>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div><label className="text-sm font-bold">V ({lang==='zh'?'支付意願':'WTP'}): {v}</label><input type="range" min="0" max="200" value={v} onChange={e=>setV(+e.target.value)} className="w-full accent-[#004030]"/></div>
+          <div><label className="text-sm font-bold">P ({lang==='zh'?'價格':'Price'}): {p}</label><input type="range" min="0" max="200" value={p} onChange={e=>setP(+e.target.value)} className="w-full accent-[#D8C3A5]"/></div>
+          <div><label className="text-sm font-bold">C ({lang==='zh'?'成本':'Cost'}): {c}</label><input type="range" min="0" max="200" value={c} onChange={e=>setC(+e.target.value)} className="w-full accent-slate-500"/></div>
+          <div className="grid grid-cols-3 gap-2 text-center text-sm">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-3"><div className="font-bold text-emerald-700 dark:text-emerald-400 text-lg">{evc}</div><div className="text-xs">{lang==='zh'?'經濟價值':'EVC'} (V-C)</div></div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3"><div className="font-bold text-blue-700 dark:text-blue-400 text-lg">{cs}</div><div className="text-xs">{lang==='zh'?'消費者剩餘':'CS'} (V-P)</div></div>
+            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3"><div className="font-bold text-amber-700 dark:text-amber-400 text-lg">{fp}</div><div className="text-xs">{lang==='zh'?'企業利潤':'Profit'} (P-C)</div></div>
+          </div>
+        </div>
+        <div className="flex items-end justify-center gap-8">
+          <div className="flex flex-col items-center">
+            <div style={{height: Math.max(cs*scale,2)+'px'}} className="w-16 bg-blue-400 rounded-t transition-all"></div>
+            <div style={{height: Math.max(fp*scale,2)+'px'}} className="w-16 bg-amber-400 transition-all"></div>
+            <div style={{height: Math.max(c*scale,2)+'px'}} className="w-16 bg-slate-300 rounded-b transition-all"></div>
+            <span className="text-xs mt-1 font-bold">{lang==='zh'?'價值分配':'Distribution'}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ROCEDecomposer = ({lang}) => {
+  const [ros, setRos] = useState(10);
+  const [turnover, setTurnover] = useState(2.0);
+  const roce = (ros * turnover / 100 * 100).toFixed(1);
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'ROCE 拆解計算器':'ROCE Decomposer'}</h4>
+      <div className="space-y-4">
+        <div><label className="text-sm font-bold">{lang==='zh'?'營業利潤率':'Operating Margin'} (ROS): {ros}%</label><input type="range" min="1" max="40" step="0.5" value={ros} onChange={e=>setRos(+e.target.value)} className="w-full accent-[#004030]"/></div>
+        <div><label className="text-sm font-bold">{lang==='zh'?'資本週轉率':'Capital Turnover'}: {turnover.toFixed(1)}x</label><input type="range" min="0.5" max="6" step="0.1" value={turnover} onChange={e=>setTurnover(+e.target.value)} className="w-full accent-[#D8C3A5]"/></div>
+        <div className="text-center bg-[#004030]/10 dark:bg-[#D8C3A5]/10 rounded-xl p-4">
+          <span className="text-sm">{lang==='zh'?'ROCE = ROS × 資本週轉率 =':'ROCE = ROS × Turnover ='}</span>
+          <span className="text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5] ml-2">{roce}%</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-3"><span className="font-bold">UPS:</span> ROS 10.1% × 3.28 = <span className="font-bold text-emerald-600">33.1%</span></div>
+          <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-3"><span className="font-bold">FedEx:</span> ROS 6.5% × 2.34 = <span className="font-bold text-amber-600">15.2%</span></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const EVACalculator = ({lang}) => {
+  const [nopat, setNopat] = useState(500);
+  const [capital, setCapital] = useState(3000);
+  const [wacc, setWacc] = useState(10);
+  const capitalCost = capital * wacc / 100;
+  const eva = nopat - capitalCost;
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'EVA 計算器':'EVA Calculator'}</h4>
+      <div className="space-y-3">
+        <div><label className="text-sm font-bold">NOPAT: ${nopat}M</label><input type="range" min="0" max="2000" step="50" value={nopat} onChange={e=>setNopat(+e.target.value)} className="w-full accent-[#004030]"/></div>
+        <div><label className="text-sm font-bold">{lang==='zh'?'投入資本':'Capital'}: ${capital}M</label><input type="range" min="500" max="10000" step="100" value={capital} onChange={e=>setCapital(+e.target.value)} className="w-full accent-[#D8C3A5]"/></div>
+        <div><label className="text-sm font-bold">WACC: {wacc}%</label><input type="range" min="3" max="20" step="0.5" value={wacc} onChange={e=>setWacc(+e.target.value)} className="w-full accent-slate-500"/></div>
+        <div className={`text-center rounded-xl p-4 ${eva >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+          <div className="text-sm">{lang==='zh'?'EVA = NOPAT - 資本成本':'EVA = NOPAT - Capital Cost'}</div>
+          <div className={`text-3xl font-black font-serif ${eva >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>${eva.toFixed(0)}M</div>
+          <div className="text-xs mt-1 opacity-70">{lang==='zh'?`資本成本 = $${capital}M × ${wacc}% = $${capitalCost.toFixed(0)}M`:`Capital Cost = $${capital}M × ${wacc}% = $${capitalCost.toFixed(0)}M`}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MarketStructureViz = ({lang}) => {
+  const structures = [
+    { name: lang==='zh'?'完全競爭':'Perfect Comp.', firms: '∞', power: 5, barrier: 10, profit: 8 },
+    { name: lang==='zh'?'壟斷性競爭':'Monopolistic', firms: lang==='zh'?'多':'Many', power: 30, barrier: 35, profit: 30 },
+    { name: lang==='zh'?'寡占':'Oligopoly', firms: lang==='zh'?'少數':'Few', power: 65, barrier: 70, profit: 65 },
+    { name: lang==='zh'?'壟斷':'Monopoly', firms: '1', power: 95, barrier: 95, profit: 90 }
+  ];
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'市場結構與獲利能力':'Market Structure & Profitability'}</h4>
+      <div className="space-y-4">
+        {structures.map((s,i) => (
+          <div key={i} className="space-y-1">
+            <div className="flex justify-between text-sm font-bold"><span>{s.name}</span><span>{lang==='zh'?'廠商數':'Firms'}: {s.firms}</span></div>
+            <div className="flex gap-2 items-center">
+              <span className="text-xs w-16 shrink-0">{lang==='zh'?'定價權':'Pricing'}</span>
+              <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-3"><div style={{width:s.power+'%'}} className="bg-[#004030] dark:bg-[#D8C3A5] h-3 rounded-full transition-all"></div></div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <span className="text-xs w-16 shrink-0">{lang==='zh'?'障礙':'Barrier'}</span>
+              <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-3"><div style={{width:s.barrier+'%'}} className="bg-amber-500 h-3 rounded-full transition-all"></div></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  const [lang, setLang] = useState('zh');
+  const [isDark, setIsDark] = useState(false);
+  const [module, setModule] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [ttsState, setTtsState] = useState('idle');
+  const [studentInfo, setStudentInfo] = useState({ group:'', dept:'', id:'', name:'' });
+  const [analytics, setAnalytics] = useState({
+    time: Array(TOTAL).fill(0), clicks: Array(TOTAL).fill(0),
+    quizCorrect: Array(TOTAL).fill(0), quizTotal: Array(TOTAL).fill(0)
+  });
+  const contentRef = useRef(null);
+  const menuRef = useRef(null);
+  const t = dict[lang];
+
+  useEffect(() => { document.documentElement.classList.toggle('dark', isDark); }, [isDark]);
+  useEffect(() => { window.scrollTo({top:0,behavior:'smooth'}); if(window.speechSynthesis) window.speechSynthesis.cancel(); setTtsState('idle'); }, [module]);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnalytics(a => { const nt = [...a.time]; nt[module]++; return {...a, time: nt}; });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [module]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
+  const handleClick = () => { setAnalytics(a => { const nc = [...a.clicks]; nc[module]++; return {...a, clicks: nc}; }); };
+  const handleQuizSubmit = (mid, correct, total) => {
+    setAnalytics(a => { const qc = [...a.quizCorrect]; const qt = [...a.quizTotal]; qc[mid] = correct; qt[mid] = total; return {...a, quizCorrect: qc, quizTotal: qt}; });
+  };
+
+  const mKeys = ['m1','m2','m3','m4','m5'];
+  const handleTTS = (action) => {
+    if (!('speechSynthesis' in window)) return;
+    if (action === 'stop') { window.speechSynthesis.cancel(); setTtsState('idle'); return; }
+    if (action === 'pause') { window.speechSynthesis.pause(); setTtsState('paused'); return; }
+    if (action === 'play') {
+      if (ttsState === 'paused') { window.speechSynthesis.resume(); setTtsState('playing'); return; }
+      window.speechSynthesis.cancel();
+      const sep = lang === 'zh' ? '。 ' : '. ';
+      let texts = [];
+      if (module === 0) {
+        texts = [t.m0_title, t.m0_intro, t.m0_why, t.m0_why_desc, ...(t.m0_stats||[]).map(s=>`${s.label}: ${s.val}`), ...(t.m0_modules||[]).map(m=>`${m.title}. ${m.desc}`)].filter(Boolean);
+      } else if (module >= 1 && module <= N) {
+        const mk = mKeys[module-1];
+        texts = [t[`${mk}_title`], t[`${mk}_p1`], t[`${mk}_p2`], t[`${mk}_p3`], ...(t[`${mk}_cards`]||[]).map(c=>`${c.title}. ${c.desc}`), t[`${mk}_case_title`], t[`${mk}_case_desc`], ...(t[`${mk}_terms`]||[]).flatMap(term=>[term.front, term.back])].filter(Boolean);
+      } else if (module === N+1) { texts = [t.m6_title, t.m6_desc].filter(Boolean);
+      } else if (module === N+2) { texts = [t.mlab_title, t.mlab_desc].filter(Boolean);
+      } else { texts = [t.analytics_title, t.analytics_desc].filter(Boolean); }
+      const text = texts.join(sep);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      const voices = window.speechSynthesis.getVoices();
+      if (lang === 'zh') { const v = voices.find(v=>v.lang==='zh-TW'&&v.name.includes('Yating'))||voices.find(v=>v.lang==='zh-TW')||voices.find(v=>v.lang.startsWith('zh')); if(v) utterance.voice=v; utterance.lang='zh-TW'; }
+      else { const v = voices.find(v=>v.lang==='en-GB'&&v.name.includes('Daniel'))||voices.find(v=>v.lang==='en-GB')||voices.find(v=>v.lang.startsWith('en')); if(v) utterance.voice=v; utterance.lang='en-GB'; }
+      utterance.onend = () => setTtsState('idle');
+      utterance.onerror = () => setTtsState('idle');
+      window.speechSynthesis.speak(utterance);
+      setTtsState('playing');
+    }
+  };
+
+  const handleExportCSV = () => {
+    const BOM = '\uFEFF';
+    const navKeys = [t.m1_nav,t.m2_nav,t.m3_nav,t.m4_nav,t.m5_nav,t.m6_nav,t.mlab_nav,t.analytics_title];
+    const rows = [
+      [t.analytics_group,t.analytics_dept,t.analytics_id,t.analytics_name],
+      [studentInfo.group,studentInfo.dept,studentInfo.id,studentInfo.name],[],
+      [t.analytics_module,t.analytics_time,t.analytics_clicks,t.analytics_acc,t.analytics_correct_ans_total],
+      ...Array.from({length:TOTAL-1},(_,i)=>{
+        const idx = i+1;
+        const acc = analytics.quizTotal[idx]>0?Math.round(analytics.quizCorrect[idx]/analytics.quizTotal[idx]*100)+'%':t.analytics_no_data;
+        const ans = analytics.quizTotal[idx]>0?`${analytics.quizCorrect[idx]}/${analytics.quizTotal[idx]}/8`:t.analytics_no_data;
+        return [navKeys[i]||`M${idx}`,analytics.time[idx]+t.analytics_sec,analytics.clicks[idx]+t.analytics_times,acc,ans];
+      })
+    ];
+    const csv = BOM + rows.map(r=>r.join(',')).join('\n');
+    const a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download='smmc_ln2_analytics.csv'; a.click();
+  };
+
+  const modulesList = [
+    { id: 0, icon: <IconBookOpen size={16}/>, title: t.m0_nav },
+    { id: 1, icon: <IconTrendingUp size={16}/>, title: t.m1_nav },
+    { id: 2, icon: <IconActivity size={16}/>, title: t.m2_nav },
+    { id: 3, icon: <IconCpu size={16}/>, title: t.m3_nav },
+    { id: 4, icon: <IconFlag size={16}/>, title: t.m4_nav },
+    { id: 5, icon: <IconLayers size={16}/>, title: t.m5_nav },
+    { id: 6, icon: <IconGlobe size={16}/>, title: t.m6_nav },
+    { id: 7, icon: <IconZapLab size={16}/>, title: t.mlab_nav },
+    { id: 8, icon: <IconActivity size={16}/>, title: t.analytics_title }
+  ];
+
+  const renderNavBottom = () => (
+    <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-300 dark:border-slate-700">
+      <button onClick={()=>setModule(Math.max(0,module-1))} disabled={module===0} className="px-6 py-3 font-serif font-bold text-slate-500 hover:text-[#004030] dark:hover:text-[#D8C3A5] disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider">← {t.nav_prev}</button>
+      <button onClick={()=>setModule(Math.min(TOTAL-1,module+1))} disabled={module===TOTAL-1} className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider shadow-md">{t.nav_next} <IconArrowRight size={16} className="ml-2"/></button>
+    </div>
+  );
+
+  const renderModule = (mk, midx) => {
+    const base = "space-y-6 text-base leading-relaxed text-slate-700 dark:text-slate-300 animate-fade-in";
+    return (
+      <div className={base}>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t[`${mk}_title`]}</h2>
+        <p>{t[`${mk}_p1`]}</p>
+        <p className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg italic font-serif text-slate-600 dark:text-slate-300">{t[`${mk}_p2`]}</p>
+        <p>{t[`${mk}_p3`]}</p>
+        <div className="grid md:grid-cols-2 gap-6">{t[`${mk}_cards`].map((c,i)=>(
+          <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-xl border-l-4 border-[#004030] shadow-sm hover:shadow-md transition-shadow">
+            <h3 className="text-base font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-2">{c.title}</h3>
+            <p className="text-sm leading-relaxed">{c.desc}</p>
+          </div>
+        ))}</div>
+        <div className="bg-[#004030] text-[#D8C3A5] p-5 rounded-xl shadow-md">
+          <h4 className="font-bold font-serif text-base mb-2">{t[`${mk}_case_title`]}</h4>
+          <p className="text-sm opacity-90 leading-relaxed">{t[`${mk}_case_desc`]}</p>
+        </div>
+        <div className="mt-8"><h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t[`${mk}_terms`].map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div></div>
+        <ModuleQuiz questions={t[`${mk}_q`]} t={t} moduleId={midx} onQuizSubmit={handleQuizSubmit}/>
+        {renderNavBottom()}
+      </div>
+    );
+  };
+
+  const renderResources = () => {
+    const mainLinks = [
+      { label: lang==='zh'?'Grant 教科書官方網站':'Grant Textbook Official Site', url: 'https://www.wiley.com/en-us/Contemporary+Strategy+Analysis-p-9781119815235', desc: lang==='zh'?'Robert M. Grant《Contemporary Strategy Analysis》第11版官方頁面':'Robert M. Grant, Contemporary Strategy Analysis, 11th Edition official page' },
+      { label: 'Business Model Canvas – Strategyzer', url: 'https://www.strategyzer.com/library/the-business-model-canvas', desc: lang==='zh'?'Osterwalder 的商業模式畫布官方工具與資源':'Osterwalder\'s official BMC tools and resources' },
+    ];
+    const otherLinks = [
+      { cat: lang==='zh'?'📹 影片資源':'📹 Video Resources', items: [
+        { label: lang==='zh'?'Porter: 共享價值 (Harvard)':'Porter: Creating Shared Value (Harvard)', url: 'https://www.youtube.com/watch?v=z2oS3zk8VA4', desc: lang==='zh'?'Michael Porter 在 Harvard 解釋共享價值概念':'Michael Porter explains the shared value concept at Harvard' },
+        { label: lang==='zh'?'平衡計分卡概述':'Balanced Scorecard Overview', url: 'https://www.youtube.com/watch?v=M_IlOlywryw', desc: lang==='zh'?'Kaplan & Norton 平衡計分卡的概念與應用':'Concepts and applications of Kaplan & Norton BSC' },
+      ]},
+      { cat: lang==='zh'?'📊 案例分析':'📊 Case Studies', items: [
+        { label: lang==='zh'?'Boeing 737 MAX 危機案例':'Boeing 737 MAX Crisis Case', url: 'https://www.henricodolfing.com/2024/08/case-study-19-20-billion-boeing-737-max.html', desc: lang==='zh'?'Boeing 從工程文化到財務導向的完整案例分析':'Complete case analysis of Boeing\'s shift from engineering to financial focus' },
+        { label: lang==='zh'?'Unilever 永續生活計畫案例':'Unilever Sustainable Living Plan Case', url: 'https://oxfordexecutive.co.uk/case-study-unilevers-sustainable-living-plan/', desc: lang==='zh'?'Oxford Executive Institute 對 Unilever USLP 的深入分析':'Oxford Executive Institute\'s in-depth analysis of Unilever\'s USLP' },
+      ]},
+      { cat: lang==='zh'?'📚 學術資源':'📚 Academic Resources', items: [
+        { label: lang==='zh'?'EVA 在企業績效評估的應用 (PMC)':'EVA for Performance Evaluation (PMC)', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7581501/', desc: lang==='zh'?'經濟附加價值作為績效衡量指標的學術研究':'Academic research on EVA as a performance evaluation metric' },
+        { label: lang==='zh'?'共享價值概念 (Wikipedia)':'Creating Shared Value (Wikipedia)', url: 'https://en.wikipedia.org/wiki/Creating_shared_value', desc: lang==='zh'?'Porter & Kramer 共享價值概念的全面介紹':'Comprehensive introduction to Porter & Kramer\'s CSV concept' },
+      ]}
+    ];
+    return (
+      <div className="space-y-10 animate-fade-in">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.m6_title}</h2>
+        <p className="text-slate-600 dark:text-slate-400">{t.m6_desc}</p>
+        <div className="grid md:grid-cols-2 gap-3">{mainLinks.map((l,i)=><LinkCard key={i} {...l}/>)}</div>
+        {otherLinks.map((sec,si)=>(
+          <div key={si}>
+            <h4 className="text-base font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3">{sec.cat}</h4>
+            <div className="grid md:grid-cols-2 gap-3">{sec.items.map((l,i)=><LinkCard key={i} {...l}/>)}</div>
+          </div>
+        ))}
+        <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 rounded-xl p-5 border border-[#004030]/20 dark:border-[#D8C3A5]/20">
+          <p className="text-sm text-slate-600 dark:text-slate-400">⚠️ {lang==='zh'?'外部連結由第三方提供，內容可能隨時變動。本頁面僅供教育用途之參考。':'External links are provided by third parties and content may change. This page is for educational reference only.'}</p>
+        </div>
+        {renderNavBottom()}
+      </div>
+    );
+  };
+
+  const renderLab = () => (
+    <div className="space-y-8 animate-fade-in">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.mlab_title}</h2>
+      <p className="text-slate-600 dark:text-slate-400">{t.mlab_desc}</p>
+      <VPCSimulator lang={lang}/>
+      <div className="grid md:grid-cols-2 gap-6">
+        <ROCEDecomposer lang={lang}/>
+        <EVACalculator lang={lang}/>
+      </div>
+      <MarketStructureViz lang={lang}/>
+      {renderNavBottom()}
+    </div>
+  );
+
+  const renderAnalytics = () => {
+    const totalTime = analytics.time.reduce((a,b)=>a+b,0);
+    const totalClicks = analytics.clicks.reduce((a,b)=>a+b,0);
+    const totalCorrect = analytics.quizCorrect.reduce((a,b)=>a+b,0);
+    const totalQuiz = analytics.quizTotal.reduce((a,b)=>a+b,0);
+    const overallAcc = totalQuiz > 0 ? Math.round(totalCorrect/totalQuiz*100) : 0;
+    const canExport = studentInfo.group && studentInfo.dept && studentInfo.id && studentInfo.name;
+    const navLabels = [t.m0_nav,t.m1_nav,t.m2_nav,t.m3_nav,t.m4_nav,t.m5_nav,t.m6_nav,t.mlab_nav,t.analytics_title];
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.analytics_title}</h2>
+        <p className="text-slate-600 dark:text-slate-400">{t.analytics_desc}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700"><div className="text-2xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{totalTime}{t.analytics_sec}</div><div className="text-xs text-slate-500">{t.analytics_total_time}</div></div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700"><div className="text-2xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{totalClicks}{t.analytics_times}</div><div className="text-xs text-slate-500">{t.analytics_total_clicks}</div></div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700"><div className="text-2xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{overallAcc}%</div><div className="text-xs text-slate-500">{t.analytics_overall_acc}</div></div>
+        </div>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-slate-100 dark:bg-slate-700"><th className="px-3 py-2 text-left">{t.analytics_module}</th><th className="px-3 py-2">{t.analytics_time}</th><th className="px-3 py-2">{t.analytics_clicks}</th><th className="px-3 py-2">{t.analytics_acc}</th></tr></thead><tbody>
+          {navLabels.map((label,i)=>(
+            <tr key={i} className="border-b border-slate-200 dark:border-slate-700"><td className="px-3 py-2 font-medium">{label}</td><td className="px-3 py-2 text-center">{analytics.time[i]}{t.analytics_sec}</td><td className="px-3 py-2 text-center">{analytics.clicks[i]}{t.analytics_times}</td><td className="px-3 py-2 text-center">{analytics.quizTotal[i]>0?Math.round(analytics.quizCorrect[i]/analytics.quizTotal[i]*100)+'%':t.analytics_no_data}</td></tr>
+          ))}
+        </tbody></table></div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+          <h3 className="font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4">{t.analytics_form_title}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label className="text-sm font-bold block mb-1">{t.analytics_group}</label><select value={studentInfo.group} onChange={e=>setStudentInfo(s=>({...s,group:e.target.value}))} className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"><option value="">--</option>{t.group_options.map(g=><option key={g} value={g}>{g}</option>)}</select></div>
+            <div><label className="text-sm font-bold block mb-1">{t.analytics_dept}</label><input placeholder={t.analytics_dept_ph} value={studentInfo.dept} onChange={e=>setStudentInfo(s=>({...s,dept:e.target.value}))} className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"/></div>
+            <div><label className="text-sm font-bold block mb-1">{t.analytics_id}</label><input placeholder={t.analytics_id_ph} value={studentInfo.id} onChange={e=>setStudentInfo(s=>({...s,id:e.target.value}))} className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"/></div>
+            <div><label className="text-sm font-bold block mb-1">{t.analytics_name}</label><input placeholder={t.analytics_name_ph} value={studentInfo.name} onChange={e=>setStudentInfo(s=>({...s,name:e.target.value}))} className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700"/></div>
+          </div>
+          <button onClick={handleExportCSV} disabled={!canExport} className="mt-4 px-6 py-2 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40">{canExport?t.analytics_export_csv:t.analytics_fill_required}</button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    if (module === 0) return (
+      <div className="space-y-8 text-lg leading-relaxed text-slate-700 dark:text-slate-300 animate-fade-in">
+        <div className="bg-[#004030] dark:bg-slate-800 rounded-2xl p-6 sm:p-8 text-white">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#D8C3A5] mb-3">{lang==='zh'?'課程簡介':'Course Introduction'}</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-white mb-4">{t.m0_title}</h2>
+          <p className="text-[#D8C3A5]/90 text-base leading-relaxed">{t.m0_intro}</p>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border-l-4 border-[#D8C3A5] shadow-sm">
+          <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-3">{t.m0_why}</h3>
+          <p className="text-base">{t.m0_why_desc}</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{t.m0_stats.map((s,i)=>(
+          <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="text-2xl md:text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{s.val}</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">{s.label}</div>
+          </div>
+        ))}</div>
+        <div>
+          <h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{lang==='zh'?'課程模組':'Course Modules'}</h3>
+          <div className="space-y-3">{t.m0_modules.map((m,i)=>(
+            <button key={i} onClick={()=>setModule(i+1)} className="w-full flex items-center gap-5 bg-white dark:bg-slate-800 rounded-xl px-6 py-4 border border-slate-200 dark:border-slate-700 hover:border-[#D8C3A5] hover:shadow-md transition-all group text-left">
+              <div className="text-3xl font-black font-serif text-[#D8C3A5] w-10 shrink-0">{m.num}</div>
+              <div className="flex-1 min-w-0"><div className="font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{m.title}</div><div className="text-sm text-slate-500 truncate">{m.desc}</div></div>
+              <IconChevronRight size={20} className="text-slate-300 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5] transition-colors shrink-0"/>
+            </button>
+          ))}</div>
+        </div>
+        <div className="flex justify-end"><button onClick={()=>setModule(1)} className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] dark:hover:bg-white transition-colors rounded-lg shadow-md">{t.m0_start}</button></div>
+      </div>
+    );
+    if (module >= 1 && module <= N) return renderModule(mKeys[module-1], module);
+    if (module === N+1) return renderResources();
+    if (module === N+2) return renderLab();
+    return renderAnalytics();
+  };
+
+  return (
+    <div className={`min-h-screen bg-[#f4f4f4] dark:bg-[#121212] font-sans flex flex-col overflow-x-hidden pt-16 selection:bg-[#004030] selection:text-white dark:selection:bg-[#D8C3A5] dark:selection:text-[#004030]`}>
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#004030] dark:bg-slate-900 text-white z-50 shadow-lg border-b border-[#D8C3A5]/30">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="relative" ref={menuRef}>
+              <button className="p-2 hover:bg-white/10 rounded-lg" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?<IconX size={20}/>:<IconMenu size={20}/>}</button>
+              {menuOpen && (
+                <div className="absolute top-full left-0 mt-1 w-64 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[100] overflow-x-hidden">
+                  <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-2 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
+                  {modulesList.map(m=>(
+                    <button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] text-white dark:bg-[#D8C3A5]/20 dark:text-[#D8C3A5] font-bold':'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
+                      <span className={module===m.id?'text-[#D8C3A5]':'opacity-50'}>{m.icon}</span><span className="truncate">{m.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="font-serif font-black text-lg tracking-widest text-[#D8C3A5]">ENT</div>
+              <div className="hidden sm:block text-left"><h1 className="font-serif font-bold text-sm md:text-base leading-tight">{t.title}</h1><p className="text-[10px] text-[#D8C3A5]/70">{t.subtitle}</p></div>
+            </button>
+          </div>
+          <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 mr-2">
+              {ttsState!=='playing'?(<button onClick={()=>handleTTS('play')} title={t.audio_read} className="p-2 rounded-full hover:bg-white/10 transition-colors flex items-center space-x-1 text-xs"><IconPlay size={14}/><span className="hidden md:inline">{t.audio_read}</span></button>):(<button onClick={()=>handleTTS('pause')} className="p-2 rounded-full hover:bg-white/10 transition-colors"><IconPause size={14}/></button>)}
+              {ttsState!=='idle'&&<button onClick={()=>handleTTS('stop')} className="p-2 rounded-full hover:bg-white/10 transition-colors"><IconSquare size={14}/></button>}
+            </div>
+            <button onClick={()=>setLang(lang==='zh'?'en':'zh')} className="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">{lang==='zh'?'EN':'中文'}</button>
+            <button onClick={()=>setIsDark(!isDark)} className="p-2 rounded-full hover:bg-white/10 transition-colors">{isDark?<IconSun size={18}/>:<IconMoon size={18}/>}</button>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 lg:px-6 flex-1 flex flex-col md:flex-row gap-0 py-6">
+        <aside className="hidden md:block w-64 shrink-0 mr-6">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden sticky top-24">
+            <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-3 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
+            <nav className="space-y-0.5 p-2">{modulesList.map(m=>(
+              <button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] dark:bg-[#D8C3A5]/20 text-white dark:text-[#D8C3A5] border border-[#D8C3A5]/30':'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
+                <span className={`mr-2.5 ${module===m.id?'text-[#D8C3A5]':'opacity-50'}`}>{m.icon}</span><span className="truncate">{m.title}</span>{module===m.id&&<IconChevronRight size={14} className="ml-auto opacity-50 shrink-0"/>}
+              </button>
+            ))}</nav>
+          </div>
+        </aside>
+        <main ref={contentRef} className="flex-1 min-w-0" onClick={handleClick}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 md:p-8">{renderContent()}</div>
+        </main>
+      </div>
+
+      <footer className="bg-[#004030] dark:bg-slate-950 text-slate-300 dark:text-slate-400 border-t border-[#D8C3A5]">
+        <div className="max-w-7xl mx-auto px-4 h-8 flex justify-between items-center text-[10px] sm:text-xs">
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="font-serif font-black text-[#D8C3A5] hidden sm:block tracking-widest text-sm">ENT</div>
+            <span className="truncate">{t.copyright} · {t.date}</span>
+          </div>
+          <div className="flex items-center space-x-3 md:space-x-4">
+            <span className="text-[#D8C3A5]/70 font-serif hidden sm:inline">Architect:&nbsp;<a href={t.architect_url} target="_blank" rel="noopener noreferrer" className="text-[#D8C3A5] hover:text-white underline underline-offset-2 transition-colors">Prof. Shihmin Lo</a></span>
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center uppercase tracking-widest hover:text-white transition-colors border-l border-slate-600 pl-3"><IconChevronUp size={12} className="md:mr-1"/><span className="hidden sm:inline">TOP</span></button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
