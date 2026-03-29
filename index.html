@@ -36,7 +36,7 @@ const { useState, useEffect, useRef } = React;
 const dict = {
 zh: {
 title: "目標、價值與績效 × 策略創新",
-subtitle: "SMMC · LN-2 互動學習",
+subtitle: "SMMC 互動學習系列",
 nav_modules: "單元目錄", nav_prev: "上一單元", nav_next: "下一單元",
 key_terms: "關鍵專有名詞", flip_prompt: "點擊翻轉", audio_read: "語音導覽",
 quiz_title: "模組知識檢定（隨機 4 題）",
@@ -51,7 +51,7 @@ analytics_id: "學號", analytics_id_ph: "例：112212099",
 analytics_name: "姓名", analytics_name_ph: "例：Jimmy Lo",
 analytics_export_csv: "匯出 CSV 歷程記錄",
 analytics_fill_required: "請填寫完整資訊以解鎖匯出",
-group_options: ["G1","G2","G3","G4","G5","Others"],
+group_options: ["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
 analytics_total_time: "總學習時間", analytics_total_clicks: "總互動點擊",
 analytics_overall_acc: "總體測驗答對率",
 analytics_module: "模組", analytics_time: "停留時間",
@@ -222,7 +222,7 @@ mlab_nav: "7. 互動實驗室",
 mlab_title: "互動實驗室",
 mlab_desc: "透過互動圖表與模擬工具，深化對核心概念的理解",
 
-date: "Version 2026.03.15",
+date: "Version 2026.03.29",
 copyright: "For Educational Use Only",
 architect_label: "Architect:",
 architect_name: "Prof. Shihmin Lo",
@@ -230,7 +230,7 @@ architect_url: "https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/
 },
 en: {
 title: "Goals, Values & Performance × Strategic Innovation",
-subtitle: "SMMC · LN-2 Interactive Learning",
+subtitle: "SMMC Interactive Learning Series",
 nav_modules: "Module Menu", nav_prev: "Previous", nav_next: "Next",
 key_terms: "Key Terms", flip_prompt: "Click to flip", audio_read: "Audio Guide",
 quiz_title: "Module Quiz (Random 4 Questions)",
@@ -245,7 +245,7 @@ analytics_id: "Student ID", analytics_id_ph: "e.g., 112212099",
 analytics_name: "Name", analytics_name_ph: "e.g., Jimmy Lo",
 analytics_export_csv: "Export CSV Record",
 analytics_fill_required: "Please complete all fields to unlock export",
-group_options: ["G1","G2","G3","G4","G5","Others"],
+group_options: ["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
 analytics_total_time: "Total Study Time", analytics_total_clicks: "Total Clicks",
 analytics_overall_acc: "Overall Quiz Accuracy",
 analytics_module: "Module", analytics_time: "Time Spent",
@@ -416,7 +416,7 @@ mlab_nav: "7. Interactive Lab",
 mlab_title: "Interactive Lab",
 mlab_desc: "Deepen understanding of core concepts through interactive charts and simulation tools",
 
-date: "Version 2026.03.15",
+date: "Version 2026.03.29",
 copyright: "For Educational Use Only",
 architect_label: "Architect:",
 architect_name: "Prof. Shihmin Lo",
@@ -764,7 +764,7 @@ function App() {
         </div>
         <div className="mt-8"><h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t[`${mk}_terms`].map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div></div>
-        <ModuleQuiz questions={t[`${mk}_q`]} t={t} moduleId={midx} onQuizSubmit={handleQuizSubmit}/>
+        <ModuleQuiz key={midx} questions={t[`${mk}_q`]} t={t} moduleId={midx} onQuizSubmit={handleQuizSubmit}/>
         {renderNavBottom()}
       </div>
     );
@@ -914,7 +914,7 @@ function App() {
               )}
             </div>
             <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="font-serif font-black text-lg tracking-widest text-[#D8C3A5]">ENT</div>
+              <div className="font-serif font-black text-lg tracking-widest text-[#D8C3A5]">VPC</div>
               <div className="hidden sm:block text-left"><h1 className="font-serif font-bold text-sm md:text-base leading-tight">{t.title}</h1><p className="text-[10px] text-[#D8C3A5]/70">{t.subtitle}</p></div>
             </button>
           </div>
@@ -948,7 +948,7 @@ function App() {
       <footer className="bg-[#004030] dark:bg-slate-950 text-slate-300 dark:text-slate-400 border-t border-[#D8C3A5]">
         <div className="max-w-7xl mx-auto px-4 h-8 flex justify-between items-center text-[10px] sm:text-xs">
           <div className="flex items-center space-x-2 md:space-x-4">
-            <div className="font-serif font-black text-[#D8C3A5] hidden sm:block tracking-widest text-sm">ENT</div>
+            <div className="font-serif font-black text-[#D8C3A5] hidden sm:block tracking-widest text-sm">VPC</div>
             <span className="truncate">{t.copyright} · {t.date}</span>
           </div>
           <div className="flex items-center space-x-3 md:space-x-4">
