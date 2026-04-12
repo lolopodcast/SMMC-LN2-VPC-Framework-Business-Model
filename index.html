@@ -710,7 +710,7 @@ function App() {
   const loadLS = (key, fb) => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fb; } catch { return fb; } };
   
   // Default to Dark Mode as per instruction
-  const [lang, setLang] = useState('zh');
+  const [lang, setLang] = useState('en');
   const [isDark, setIsDark] = useState(true);
   const [module, setModule] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
